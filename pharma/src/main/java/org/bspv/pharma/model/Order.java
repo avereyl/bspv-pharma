@@ -12,5 +12,13 @@ public final class Order implements Serializable {
     public Order() {
         // TODO Auto-generated constructor stub
     }
+    
+    private final UUID id;
+    private final LocalDateTime creationDate;
+    private final LocalDateTime validationDate;
+    private final LocalDateTime receptionDate;
+    private final String internalComment;
+    private final String externalComment;
+    private final Set<OrderItem> items;
 
 }

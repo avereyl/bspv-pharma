@@ -48,6 +48,21 @@ public final class Goods implements Serializable {
     private Goods(Builder builder) {
     }
 
+    
+    
+     /**
+     * Identifier of this piece of goods.
+     */
+    private final UUID id;
+    private final String name;
+    private final String label;
+    
+    private final Location defaultLocation;
+    
+    private final Integer minimumOrderQuantity;
+    private final Integer maximumOrderQuantity;
+    private final Integer optimumOrderQuantity;
+    
     private final Set<Tag> tags = new HashSet<>();
     
 }
