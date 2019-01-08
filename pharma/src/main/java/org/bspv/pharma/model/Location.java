@@ -9,8 +9,4 @@ public final class Location implements Serializable {
      */
     private static final long serialVersionUID = 4950494554646408104L;
 
-    public Location() {
-        // TODO Auto-generated constructor stub
-    }
-
 }

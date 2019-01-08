@@ -2,10 +2,22 @@ package org.bspv.pharma.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
+import lombok.Getter;
+/**
+ * This class indicates for a {@link Location} and {@link Goods} the number of elements at a given time.
+ * This position could have been checked by a user or is computed.
+ * 
+ * @author guillaume
+ *
+ */
+@Getter
 public final class StockPosition implements Serializable {
 
     /**
@@ -21,7 +33,7 @@ public final class StockPosition implements Serializable {
      * </ul>
      *
      */
-    public enum Type {
+    public enum StockPostitionType {
         LIVE,
         CHECKED,
         COMPUTED
@@ -29,22 +41,58 @@ public final class StockPosition implements Serializable {
     /**
      * Identifier of this position.
      */
-    private final UUID id;
+    private UUID id;
     
-    private final Integer minimum;
-    private final Integer maximum;
-    private final Integer optimum;
-    private final Integer current;
+    private Integer minimum;
+    private Integer maximum;
+    private Integer optimum;
+    private Integer current;
     
-    private final Type type;
+    private StockPostitionType type;
     
-    private final LocalDateTime createdDate;
-    private final LocalDateTime lastModifiedDate;
+    private LocalDateTime createdDate;
+    private LocalDateTime valueDate;
     
-    private final Goods goods;
-    private final Location location;
+    private Goods goods;
+    private Location location;
     
     private final Set<ExtraInformation> information = new HashSet<>();
+    
+    private final static class Builder {
+    	
+        private Builder() {}
+    	private List<Consumer<StockPosition>> operations = new ArrayList<>();
+    	
+    	public StockPosition build() {
+    		StockPosition stockPosition = new StockPosition();
+    		this.operations.forEach(c -> c.accept(stockPosition));
+    		return stockPosition;
+    	}
+    	
+    	public Builder movement(Movement movement) {
+    		//TODO take care of the valueDate ?
+    		return this;
+    	}
+    	
+    	public Builder from(StockPosition stockPosition) {
+    		//TODO
+    		return this;
+    	}
+    }
+    
+    public static final StockPosition.Builder builder() {
+    	return new StockPosition.Builder();
+    }
+    
+    /**
+     * Should use the builder instead.
+     */
+    private StockPosition() {}
 
-
+    public StockPosition computeNewPosition(final List<Movement> movements) {
+    	StockPosition.Builder builder = StockPosition.builder().from(this);
+    	movements.forEach(builder::movement);
+    	return builder.build();
+    }
+    
 }

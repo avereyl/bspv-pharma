@@ -9,8 +9,5 @@ public final class Order implements Serializable {
      */
     private static final long serialVersionUID = 7511819088515918000L;
 
-    public Order() {
-        // TODO Auto-generated constructor stub
-    }
 
 }
