@@ -67,6 +67,13 @@ public final class Movement implements Serializable {
      * Location concerned by the movement.
      */
     private Location location;
+    
+    private Integer quantity;
+    
+    // reason
+    
+    private Order order; // optional
+    //user id
 
     
     

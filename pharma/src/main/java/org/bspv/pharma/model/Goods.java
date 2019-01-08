@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 
 import lombok.Getter;
 
-
 /**
  * 
  * @author guillaume
@@ -21,44 +20,45 @@ import lombok.Getter;
  */
 public final class Goods implements Serializable {
 
-    /**
-     * Generated Serial UID.
-     */
-    private static final long serialVersionUID = -2516920878572437352L;
-    
-    /**
-     * Identifier of this goods.
-     */
-    @Getter
-    private UUID id;
-    @Getter
-    private String label;
-    @Getter
-    private final Set<Tag> tags = new HashSet<>();
+	/**
+	 * Generated Serial UID.
+	 */
+	private static final long serialVersionUID = -2516920878572437352L;
 
-    private Goods() {}
-    
-    
-    public static class Builder {
-        
-    	private final List<Consumer<Goods>> operations = new ArrayList<>();
-    	
-    	private Builder() {}
-        
-        
+	public static class Builder {
 
-        /**
-         * 
-         * @return new instance of {@link Goods}
-         */
-        public Goods build() {
-            Goods goods = new Goods();
-            operations.forEach(c -> c.accept(goods));
-            return goods;
-        }
-    }
+		private final List<Consumer<Goods>> operations = new ArrayList<>();
 
+		private Builder() {
+		}
 
-    
-    
+		/**
+		 * 
+		 * @return new instance of {@link Goods}
+		 */
+		public Goods build() {
+			Goods goods = new Goods();
+			operations.forEach(c -> c.accept(goods));
+			return goods;
+		}
+	}
+
+	private Goods() {
+	}
+
+	/**
+	 * Identifier of this piece of goods.
+	 */
+	private UUID id;
+	private String name;
+	private String label;
+
+	private Location defaultLocation;
+
+	private Integer minimumOrderQuantity;
+	private Integer maximumOrderQuantity;
+	private Integer optimumOrderQuantity;
+
+	private Set<Tag> tags = new HashSet<>();
+
 }

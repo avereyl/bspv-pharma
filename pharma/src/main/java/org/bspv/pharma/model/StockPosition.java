@@ -27,16 +27,18 @@ public final class StockPosition implements Serializable {
     /**
      * Type of stock position.
      * <ul>
-     * <li>LIVE: current stock position
+     * <li>LIVE: current stock position ? maybe useless ! could use latest CHECKED or COMPUTED and apply movements
      * <li>CHECKED: checked stocked position
-     * <li>COMPUTED: computed stocked position (default) might be used for forecast
+     * <li>COMPUTED: computed stocked position might be used for forecast (or as default see LIVE replacement)
+     * <li>PENDING: stocked position being created / not validated yet
      * </ul>
      *
      */
     public enum StockPostitionType {
         LIVE,
         CHECKED,
-        COMPUTED
+        COMPUTED,
+        PENDING
     }
     /**
      * Identifier of this position.
