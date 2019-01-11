@@ -61,4 +61,8 @@ public final class Goods implements Serializable {
 
 	private Set<Tag> tags = new HashSet<>();
 
+	public static Builder builder() {
+		return new Goods.Builder();
+	}
+
 }
