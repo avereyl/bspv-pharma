@@ -18,8 +18,8 @@ public class MovementTest {
 		
 		// given
 		Integer qty = 10;
-		Goods goods = Goods.builder().build();
-		Location location = Location.builder().build();
+		Goods goods = Goods.builder().name("goods").build();
+		Location location = Location.builder().name("location").build();
 
 		// when
 		Movement movement = Movement.builder().of(goods).quantity(qty).from(location).build();
@@ -40,15 +40,15 @@ public class MovementTest {
 	public void MovementMaximalBuildingTest() {
 		
 		// given
-		Goods goods = Goods.builder().build();
+		Goods goods = Goods.builder().name("Goods").build();
 		Integer qty = 10;
-		Location location = Location.builder().build();
+		Location location = Location.builder().name("location").build();
 		UUID id = UUID.randomUUID();
 		MovementReason reason = MovementReason.CONSUMPTION;
 		LocalDateTime createdDate = LocalDateTime.now();
 		LocalDateTime valueDate = LocalDateTime.now();
 		Movement linkedMovement = Movement.builder().of(goods).quantity(qty).from(location).build();
-		Order linkedOrder = new Order();
+		Order linkedOrder = Order.builder().build();
 		
 		// when
 		Movement movement = Movement.builder()

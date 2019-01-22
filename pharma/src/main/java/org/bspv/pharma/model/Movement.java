@@ -85,21 +85,30 @@ public final class Movement implements Serializable {
 	private LocalDateTime valueDate;
 
 	/**
+	 * Id of the user responsible for this movement. Might be null.
+	 */
+	private UUID responsibleUser;
+
+	/**
 	 * Reference to a optional linked movement.
 	 */
 	private Movement linkedMovement;
 
 	/**
-	 * Optional reference to an order
+	 * Reference to an optional order
 	 */
 	private Order linkedOrder;
-	
+
 	public Optional<Movement> getLinkedMovement() {
 		return Optional.ofNullable(linkedMovement);
 	}
-	
+
 	public Optional<Order> getLinkedOrder() {
 		return Optional.ofNullable(linkedOrder);
+	}
+
+	public Optional<UUID> getResponsibleUser() {
+		return Optional.ofNullable(responsibleUser);
 	}
 
 	private Movement() {
@@ -109,6 +118,7 @@ public final class Movement implements Serializable {
 	public static final MovementGoodsBuilder builder() {
 		return new Movement.Builder();
 	}
+
 	public final Builder toBuilder() {
 		return new Movement.Builder().clone(this);
 	}
@@ -122,16 +132,27 @@ public final class Movement implements Serializable {
 	}
 
 	public static interface MovementLocationBuilder {
-		Builder to(@NonNull Location location);
-		Builder from(@NonNull Location location);
+		MovementBuilder to(@NonNull Location location);
+
+		MovementBuilder from(@NonNull Location location);
 	}
+
 	public static interface MovementBuilder {
 		MovementBuilder id(@NonNull UUID id);
+
 		MovementBuilder reason(@NonNull MovementReason reason);
+
 		MovementBuilder createdDate(@NonNull LocalDateTime createdDate);
+
 		MovementBuilder valueDate(@NonNull LocalDateTime valueDate);
+
 		MovementBuilder linkedMovement(@NonNull Movement linkedMovement);
+
 		MovementBuilder linkedOrder(@NonNull Order linkedOrder);
+
+		MovementBuilder responsibleUser(@NonNull UUID responsibleUser);
+
+		Movement build();
 	}
 
 	public static final class Builder
@@ -149,10 +170,9 @@ public final class Movement implements Serializable {
 
 		@Override
 		public MovementQuantityBuilder of(@NonNull Goods goods) {
-			this.operations.add(sp -> sp.goods = goods);
-			return this;
+			return goods(goods);
 		}
-		
+
 		private MovementQuantityBuilder goods(@NonNull Goods goods) {
 			this.operations.add(sp -> sp.goods = goods);
 			return this;
@@ -164,48 +184,60 @@ public final class Movement implements Serializable {
 			return this;
 		}
 
-		
 		@Override
-		public Builder from(@NonNull Location location) {
+		public MovementBuilder from(@NonNull Location location) {
 			this.operations.add(sp -> sp.location = location);
-			this.operations.add(sp -> sp.quantity = sp.quantity*-1);
+			this.operations.add(sp -> sp.quantity = sp.quantity * -1);
 			return this;
 		}
-		
+
 		@Override
-		public Builder to(@NonNull Location location) {
+		public MovementBuilder to(@NonNull Location location) {
+			return location(location);
+		}
+
+		private MovementBuilder location(@NonNull Location location) {
 			this.operations.add(sp -> sp.location = location);
 			return this;
 		}
-		
-		private Builder location(@NonNull Location location) {
-			this.operations.add(sp -> sp.location = location);
-			return this;
-		}
-		
-		public Builder reason(@NonNull MovementReason reason) {
+
+		@Override
+		public MovementBuilder reason(@NonNull MovementReason reason) {
 			this.operations.add(sp -> sp.reason = reason);
 			return this;
 		}
-		
-		public Builder createdDate(@NonNull LocalDateTime createdDate) {
+
+		@Override
+		public MovementBuilder createdDate(@NonNull LocalDateTime createdDate) {
 			this.operations.add(sp -> sp.createdDate = createdDate);
 			return this;
 		}
-		
-		public Builder valueDate(@NonNull LocalDateTime valueDate) {
+
+		@Override
+		public MovementBuilder valueDate(@NonNull LocalDateTime valueDate) {
 			this.operations.add(sp -> sp.valueDate = valueDate);
 			return this;
 		}
-		public Builder linkedMovement(@NonNull Movement linkedMovement) {
+
+		@Override
+		public MovementBuilder linkedMovement(@NonNull Movement linkedMovement) {
 			this.operations.add(sp -> sp.linkedMovement = linkedMovement);
 			return this;
 		}
-		public Builder linkedOrder(@NonNull Order linkedOrder) {
+
+		@Override
+		public MovementBuilder linkedOrder(@NonNull Order linkedOrder) {
 			this.operations.add(sp -> sp.linkedOrder = linkedOrder);
 			return this;
 		}
 
+		@Override
+		public MovementBuilder responsibleUser(UUID responsibleUser) {
+			this.operations.add(sp -> sp.responsibleUser = responsibleUser);
+			return this;
+		}
+
+		@Override
 		public Movement build() {
 			Movement movement = new Movement();
 			this.operations.forEach(c -> c.accept(movement));
@@ -217,7 +249,7 @@ public final class Movement implements Serializable {
 			movement.valueDate = movement.valueDate == null ? now : movement.valueDate;
 			return movement;
 		}
-		
+
 		public Builder clone(Movement movement) {
 			this.id(movement.id);
 			this.goods(movement.goods);
@@ -228,6 +260,7 @@ public final class Movement implements Serializable {
 			this.valueDate(movement.valueDate);
 			this.linkedMovement(movement.linkedMovement);
 			this.linkedOrder(movement.linkedOrder);
+			this.responsibleUser(movement.responsibleUser);
 			return this;
 		}
 

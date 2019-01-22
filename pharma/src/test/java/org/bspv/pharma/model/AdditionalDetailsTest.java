@@ -1,8 +1,8 @@
 package org.bspv.pharma.model;
 
-public class ExtraInformationTest {
+public class AdditionalDetailsTest {
 
-	public ExtraInformationTest() {
+	public AdditionalDetailsTest() {
 		// TODO Auto-generated constructor stub
 	}
 

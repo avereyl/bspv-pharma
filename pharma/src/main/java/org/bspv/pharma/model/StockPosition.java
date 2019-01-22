@@ -3,6 +3,8 @@ package org.bspv.pharma.model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +13,7 @@ import java.util.function.Consumer;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class indicates for a {@link Location} and {@link Goods} the number of
@@ -20,6 +23,7 @@ import lombok.NonNull;
  * @author guillaume
  *
  */
+@Slf4j
 @Getter
 public final class StockPosition implements Serializable {
 
@@ -101,9 +105,9 @@ public final class StockPosition implements Serializable {
 	private Location location;
 
 	/**
-	 * Some {@link ExtraInformation} on this stock position.
+	 * Some {@link AdditionalDetails} on this stock position.
 	 */
-	private final Set<ExtraInformation> information = new HashSet<>();
+	private final Set<AdditionalDetails> additionalDetails = new HashSet<>();
 
 	/**
 	 * 
@@ -128,9 +132,9 @@ public final class StockPosition implements Serializable {
 		StockPositionBuilder pending();
 		StockPositionBuilder createdDate(@NonNull LocalDateTime createdDate);
 		StockPositionBuilder valueDate(@NonNull LocalDateTime valueDate);
-		StockPositionBuilder information();
-		StockPositionBuilder information(@NonNull ExtraInformation info);
-		StockPositionBuilder information(@NonNull Set<ExtraInformation> information);
+		StockPositionBuilder additionalDetails();
+		StockPositionBuilder additionalDetail(@NonNull AdditionalDetails detail);
+		StockPositionBuilder additionalDetails(@NonNull Set<AdditionalDetails> details);
 	}
 	
 	public static final class Builder implements StockPositionLocationBuilder, StockPositionGoodsBuilder, StockPositionBuilder {
@@ -155,6 +159,7 @@ public final class StockPosition implements Serializable {
 			stockPosition.valueDate = stockPosition.valueDate == null ? now : stockPosition.valueDate;
 			return stockPosition;
 		}
+		
 		@Override
 		public Builder id(@NonNull UUID id) {
 			this.operations.add(sp -> sp.id = id);
@@ -222,17 +227,17 @@ public final class StockPosition implements Serializable {
 			return this;
 		}
 		@Override
-		public Builder information() {
-			this.operations.add(sp -> sp.information.clear());
+		public Builder additionalDetails() {
+			this.operations.add(sp -> sp.additionalDetails.clear());
 			return this;
 		}
-		public Builder information(@NonNull ExtraInformation info) {
-			this.operations.add(sp -> sp.information.add(info));
+		public Builder additionalDetail(@NonNull AdditionalDetails detail) {
+			this.operations.add(sp -> sp.additionalDetails.add(detail));
 			return this;
 		}
 		@Override
-		public Builder information(@NonNull Set<ExtraInformation> information) {
-			this.operations.add(sp -> sp.information.addAll(information));
+		public Builder additionalDetails(@NonNull Set<AdditionalDetails> details) {
+			this.operations.add(sp -> sp.additionalDetails.addAll(details));
 			return this;
 		}
 		
@@ -252,7 +257,7 @@ public final class StockPosition implements Serializable {
 			this.valueDate(stockPosition.valueDate);
 			this.goods(stockPosition.goods);
 			this.location(stockPosition.location);
-			this.information(stockPosition.information);
+			this.additionalDetails(stockPosition.additionalDetails);
 			return this;
 		}
 
@@ -271,17 +276,47 @@ public final class StockPosition implements Serializable {
 	private StockPosition() {
 	}
 	
-	private boolean isMovementValid(final Movement movement) {
+	/**
+	 * Check if the given movement can be applied to the given stock position.
+	 * <ul>Check:
+	 * <li>value date
+	 * <li>goods
+	 * <li>location
+	 * <li>available quantity
+	 * </ul>
+	 * @param position Stock position
+	 * @param movement Movement to apply
+	 * @return true if movement can be applied to stock position false otherwise
+	 */
+	public boolean canMovementBeAppliedImmediately(final StockPosition position, final Movement movement) {
 		boolean valid = true;
-		valid &= !this.getValueDate().isAfter(movement.getValueDate());
-		valid &= this.getGoods().equals(movement.getGoods());
-		valid &= this.getLocation().equals(movement.getLocation());
-		valid &= (this.current + movement.getQuantity()) >= 0;
+		valid &= !position.getValueDate().isAfter(movement.getValueDate());
+		valid &= position.getGoods().equals(movement.getGoods());
+		valid &= position.getLocation().equals(movement.getLocation());
+		valid &= (position.getCurrent() + movement.getQuantity()) >= 0;
+		return valid;
+	}
+	/**
+	 * Check if the given movement may be applied to the given stock position.
+	 * <ul>Check:
+	 * <li>value date
+	 * <li>goods
+	 * <li>location
+	 * </ul>
+	 * @param position Stock position
+	 * @param movement Movement to apply
+	 * @return true if movement can be applied to stock position false otherwise
+	 */
+	public boolean mayMovementBeApplied(final StockPosition position, final Movement movement) {
+		boolean valid = true;
+		valid &= !position.getValueDate().isAfter(movement.getValueDate());
+		valid &= position.getGoods().equals(movement.getGoods());
+		valid &= position.getLocation().equals(movement.getLocation());
 		return valid;
 	}
 
 	public StockPosition computeNewPosition(final Movement movement) {
-		if (!isMovementValid(movement)) {
+		if (!canMovementBeAppliedImmediately(this, movement)) {
 			throw new IllegalArgumentException("Cannot apply movement to stockPosition, please check, goods, location, value date and quantity.");
 		}
 		StockPosition.Builder builder = StockPosition.builder().clone(this);
@@ -290,24 +325,55 @@ public final class StockPosition implements Serializable {
 	}
 	
 	public StockPosition computeNewPositionSilently(final Movement movement) {
-		if (isMovementValid(movement)) {
+		if (canMovementBeAppliedImmediately(this, movement)) {
 			StockPosition.Builder builder = StockPosition.builder().clone(this);
 			builder.current(this.current + movement.getQuantity());
 			return builder.build();
 		}
+		log.warn("Ignoring movement {}. Returning this stock position.", movement);
 		return this;
 	}
 	
 	public StockPosition computeNewPosition(final List<Movement> movements) {
-		StockPosition.Builder builder = StockPosition.builder().clone(this);
-		// TODO sort, check and reduce quantity
-		return builder.build();
+		Comparator<Movement> comparator = (m1, m2) -> m1.getValueDate().compareTo(m2.getValueDate());
+		List<Movement> sortedMovements = new ArrayList<>(movements);
+		Collections.sort(sortedMovements, comparator);
+		Integer valueAfterMovements = this.getCurrent();
+		for (Movement movement : sortedMovements) {
+			if (mayMovementBeApplied(this, movement)) {
+				valueAfterMovements += movement.getQuantity();
+				if (valueAfterMovements < 0) {
+					log.error("Failed to apply movement {}, resulting quantity would be negative.", movement);
+					throw new IllegalArgumentException("Trying to remove more goods than available !");
+				}
+				log.debug("Applying movement {} to stock position {} (current:{})", movement, this.getId(), valueAfterMovements);
+			} else {
+				log.error("Cannot apply movement {} to this position, please check value date, goods and location.", movement);
+				throw new IllegalArgumentException("Movement cannot be applied to this stock position.");
+			}
+		}
+		return StockPosition.builder().clone(this).current(valueAfterMovements).build();
 	}
 	
+	
 	public StockPosition computeNewPositionSilently(final List<Movement> movements) {
-		StockPosition.Builder builder = StockPosition.builder().clone(this);
-		// TODO sort, filter and reduce quantity
-		return builder.build();
+		Comparator<Movement> comparator = (m1, m2) -> m1.getValueDate().compareTo(m2.getValueDate());
+		List<Movement> sortedMovements = new ArrayList<>(movements);
+		Collections.sort(sortedMovements, comparator);
+		Integer valueAfterMovements = this.getCurrent();
+		for (Movement movement : sortedMovements) {
+			if (mayMovementBeApplied(this, movement)) {
+				if (valueAfterMovements + movement.getQuantity() < 0) {
+					log.warn("Ignoring movement {}, resulting quantity would be negative.", movement);
+				} else {
+					valueAfterMovements += movement.getQuantity();
+					log.debug("Applying movement {} to stock position {} (current:{})", movement, this.getId(), valueAfterMovements);
+				}
+			} else {
+				log.warn("Ignoring movement {} to this position, please check value date, goods and location.", movement);
+			}
+		}
+		return StockPosition.builder().clone(this).current(valueAfterMovements).build();
 	}
 
 }
