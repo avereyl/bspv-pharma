@@ -27,17 +27,28 @@ public final class AdditionalDetails implements Serializable {
 	@Getter
 	private String key;
 	private String value;
+	@Getter
 	private LocalDateTime valueDate;
 
-	public static Builder builder() {
+	public static AdditionalDetailsKeyBuilder builder() {
 		return new AdditionalDetails.Builder();
 	}
 
 	public Builder toBuilder() {
 		return new AdditionalDetails.Builder().clone(this);
 	}
+	
+	public static interface AdditionalDetailsKeyBuilder {
+		AdditionalDetailsBuilder key(@NonNull final String key);
+	}
+	public static interface AdditionalDetailsBuilder {
+		AdditionalDetailsBuilder value(final String value);//can be null
+		AdditionalDetailsBuilder valueDate(@NonNull final LocalDateTime valueDate);
+		AdditionalDetails build();
+		
+	}
 
-	public static class Builder {
+	public static class Builder implements AdditionalDetailsKeyBuilder, AdditionalDetailsBuilder {
 
 		private final List<Consumer<AdditionalDetails>> operations = new ArrayList<>();
 
@@ -54,7 +65,7 @@ public final class AdditionalDetails implements Serializable {
 			return this;
 		}
 
-		private Builder valueDate(LocalDateTime valueDate) {
+		public Builder valueDate(LocalDateTime valueDate) {
 			operations.add(ad -> ad.valueDate = valueDate);
 			return this;
 		}
@@ -85,8 +96,5 @@ public final class AdditionalDetails implements Serializable {
 		return Optional.ofNullable(value);
 	}
 
-	public Optional<LocalDateTime> getValueDate() {
-		return Optional.ofNullable(valueDate);
-	}
 
 }

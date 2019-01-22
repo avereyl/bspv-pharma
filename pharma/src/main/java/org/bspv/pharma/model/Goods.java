@@ -220,10 +220,16 @@ public final class Goods implements Serializable {
 	}
 	
 	public boolean isDeprecated() {
-		return this.getDeprecatedDate().isPresent();
+		return isDeprecatedAfter(LocalDateTime.now());
+	}
+	public boolean isDeprecatedAfter(LocalDateTime referenceDatetime) {
+		return this.getDeprecatedDate().orElse(LocalDateTime.MAX).isAfter(referenceDatetime);
 	}
 	public boolean isObsolete() {
-		return this.getObsoleteDate().isPresent();
+		return isObsoleteAfter(LocalDateTime.now());
+	}
+	public boolean isObsoleteAfter(LocalDateTime referenceDatetime) {
+		return this.getObsoleteDate().orElse(LocalDateTime.MAX).isAfter(referenceDatetime);
 	}
 
 	public static GoodsNameBuilder builder() {

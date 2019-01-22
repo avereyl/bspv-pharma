@@ -17,22 +17,30 @@ public final class Tag implements Serializable {
 	 */
 	private static final long serialVersionUID = 5588678864664858346L;
 
-	public static final Supplier<Tag.Builder> EXPIRY_TAG = () -> Tag.builder().key("expire");
-	public static final Supplier<Tag.Builder> BATTERY_TAG = () -> Tag.builder().key("battery");
+	public static final Supplier<Tag.TagBuilder> EXPIRY_TAG = () -> Tag.builder().key("expires");
+	public static final Supplier<Tag.TagBuilder> BATTERY_TAG = () -> Tag.builder().key("battery");
 
 	@Getter
 	private String key;
 	private String value;
 
-	public static Builder builder() {
+	public static TagKeyBuilder builder() {
 		return new Tag.Builder();
 	}
 
 	public Builder toBuilder() {
 		return new Tag.Builder().clone(this);
 	}
+	
+	public static interface TagKeyBuilder {
+		 TagBuilder key(@NonNull final String key);
+	}
+	public static interface TagBuilder {
+		TagBuilder value(final String value);//can be null
+		Tag build();
+	}
 
-	public static class Builder {
+	public static class Builder implements TagKeyBuilder, TagBuilder {
 		
 		private final List<Consumer<Tag>> operations = new ArrayList<>();
 		

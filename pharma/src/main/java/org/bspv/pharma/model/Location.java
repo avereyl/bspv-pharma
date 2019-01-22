@@ -77,6 +77,7 @@ public final class Location implements Serializable {
 			this.operations.forEach(c -> c.accept(location));
 			// handling default values
 			location.id = location.id == null ? UUID.randomUUID() : location.id;
+			location.code = location.code == null ? location.id.toString().substring(24) : location.code;
 			location.description = location.description == null ? "" : location.description;
 			location.createdDate = location.createdDate == null ? LocalDateTime.now() : location.createdDate;
 			return location;
@@ -108,7 +109,12 @@ public final class Location implements Serializable {
 	public Optional<LocalDateTime> getObsoleteDate() {
 		return Optional.ofNullable(this.obsoleteDate);
 	}
-
+	public boolean isObsolete() {
+		return isObsoleteAfter(LocalDateTime.now());
+	}
+	public boolean isObsoleteAfter(LocalDateTime referenceDatetime) {
+		return this.getObsoleteDate().orElse(LocalDateTime.MAX).isAfter(referenceDatetime);
+	}
 	public static LocationNameBuilder builder() {
 		return new Location.Builder();
 	}
