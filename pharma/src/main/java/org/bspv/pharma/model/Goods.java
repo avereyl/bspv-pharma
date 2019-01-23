@@ -57,49 +57,49 @@ public final class Goods implements Serializable {
 		}
 		
 		@Override
-		public GoodsBuilder id(@NonNull UUID id) {
+		public Builder id(@NonNull UUID id) {
 			operations.add(g -> g.id = id);
 			return this;
 		}
 
 		@Override
-		public GoodsBuilder description(@NonNull String description) {
+		public Builder description(@NonNull String description) {
 			operations.add(g -> g.description = description);
 			return this;
 		}
 
 		@Override
-		public GoodsBuilder createdDate(@NonNull LocalDateTime createdDate) {
+		public Builder createdDate(@NonNull LocalDateTime createdDate) {
 			operations.add(g -> g.createdDate = createdDate);
 			return this;
 		}
 
 		@Override
-		public GoodsBuilder lastUpdatedDate(LocalDateTime lastUpdatedDate) {
+		public Builder lastUpdatedDate(LocalDateTime lastUpdatedDate) {
 			operations.add(g -> g.lastUpdatedDate = lastUpdatedDate);
 			return this;
 		}
 
 		@Override
-		public GoodsBuilder deprecatedDate(LocalDateTime deprecatedDate) {
+		public Builder deprecatedDate(LocalDateTime deprecatedDate) {
 			operations.add(g -> g.deprecatedDate = deprecatedDate);
 			return this;
 		}
 
 		@Override
-		public GoodsBuilder obsoleteDate(LocalDateTime obsoleteDate) {
+		public Builder obsoleteDate(LocalDateTime obsoleteDate) {
 			operations.add(g -> g.obsoleteDate = obsoleteDate);
 			return this;
 		}
 
 		@Override
-		public GoodsBuilder defaultLocation(Location defaultLocation) {
+		public Builder defaultLocation(Location defaultLocation) {
 			operations.add(g -> g.defaultLocation = defaultLocation);
 			return this;
 		}
 
 		@Override
-		public GoodsBuilder minimumOrderQuantity(@NonNull Integer minimumOrderQuantity) {
+		public Builder minimumOrderQuantity(@NonNull Integer minimumOrderQuantity) {
 			operations.add(g -> g.minimumOrderQuantity = minimumOrderQuantity);
 			return this;
 		}
@@ -111,31 +111,31 @@ public final class Goods implements Serializable {
 		}
 
 		@Override
-		public GoodsBuilder optimumOrderQuantity(@NonNull Integer optimumOrderQuantity) {
+		public Builder optimumOrderQuantity(@NonNull Integer optimumOrderQuantity) {
 			operations.add(g -> g.optimumOrderQuantity = optimumOrderQuantity);
 			return this;
 		}
 
 		@Override
-		public GoodsBuilder tag(@NonNull Tag tag) {
+		public Builder tag(@NonNull Tag tag) {
 			operations.add(g -> g.getTags().add(tag));
 			return this;
 		}
 
 		@Override
-		public GoodsBuilder tags() {
+		public Builder tags() {
 			operations.add(g -> g.getTags().clear());
 			return this;
 		}
 
 		@Override
-		public GoodsBuilder tags(@NonNull Set<Tag> tags) {
+		public Builder tags(@NonNull Set<Tag> tags) {
 			operations.add(g -> g.getTags().addAll(tags));
 			return this;
 		}
 
 		@Override
-		public GoodsBuilder name(String name) {
+		public Builder name(@NonNull String name) {
 			operations.add(g -> g.name = name);
 			return this;
 		}
@@ -158,7 +158,7 @@ public final class Goods implements Serializable {
 			return goods;
 		}
 
-		public Builder clone(Goods goods) {
+		private Builder clone(Goods goods) {
 			this.id(goods.id);
 			this.name(goods.name);
 			this.description(goods.description);
@@ -220,16 +220,16 @@ public final class Goods implements Serializable {
 	}
 	
 	public boolean isDeprecated() {
-		return isDeprecatedAfter(LocalDateTime.now());
+		return isDeprecatedFrom(LocalDateTime.now());
 	}
-	public boolean isDeprecatedAfter(LocalDateTime referenceDatetime) {
-		return this.getDeprecatedDate().orElse(LocalDateTime.MAX).isAfter(referenceDatetime);
+	public boolean isDeprecatedFrom(LocalDateTime referenceDatetime) {
+		return this.getDeprecatedDate().orElse(LocalDateTime.MAX).isBefore(referenceDatetime);
 	}
 	public boolean isObsolete() {
-		return isObsoleteAfter(LocalDateTime.now());
+		return isObsoleteFrom(LocalDateTime.now());
 	}
-	public boolean isObsoleteAfter(LocalDateTime referenceDatetime) {
-		return this.getObsoleteDate().orElse(LocalDateTime.MAX).isAfter(referenceDatetime);
+	public boolean isObsoleteFrom(LocalDateTime referenceDatetime) {
+		return this.getObsoleteDate().orElse(LocalDateTime.MAX).isBefore(referenceDatetime);
 	}
 
 	public static GoodsNameBuilder builder() {

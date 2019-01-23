@@ -39,7 +39,7 @@ public final class Inventory implements Serializable {
 			this.operations.add(i -> i.createdDate = createdDate);
 			return this;
 		}
-		public Builder closedDate(@NonNull LocalDateTime closedDate) {
+		public Builder closedDate(LocalDateTime closedDate) {
 			this.operations.add(i -> i.closedDate = closedDate);
 			return this;
 		}
@@ -55,7 +55,7 @@ public final class Inventory implements Serializable {
 			this.operations.add(i -> i.positions.clear());
 			return this;
 		}
-		public Builder responsibleUser(@NonNull UUID responsibleUser) {
+		public Builder responsibleUser(UUID responsibleUser) {
 			this.operations.add(i -> i.responsibleUser = responsibleUser);
 			return this;
 		}
@@ -64,7 +64,7 @@ public final class Inventory implements Serializable {
 			return this;
 		}
 
-		public Builder clone(Inventory inventory) {
+		private Builder clone(Inventory inventory) {
 			this.id(inventory.id);
 			this.createdDate(inventory.createdDate);
 			this.closedDate(inventory.closedDate);

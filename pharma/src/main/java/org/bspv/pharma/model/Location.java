@@ -28,13 +28,10 @@ public final class Location implements Serializable {
 
 	public static interface LocationBuilder {
 		LocationBuilder id(@NonNull final UUID id);
-
 		LocationBuilder code(@NonNull final String code);
-
 		LocationBuilder description(@NonNull final String description);
-
-		LocationBuilder obsoleteDate(@NonNull final LocalDateTime obsoleteDate);
-
+		LocationBuilder createdDate(@NonNull final LocalDateTime createdDate);
+		LocationBuilder obsoleteDate(final LocalDateTime obsoleteDate);
 		Location build();
 	}
 
@@ -43,31 +40,37 @@ public final class Location implements Serializable {
 		private final List<Consumer<Location>> operations = new ArrayList<>();
 
 		@Override
-		public LocationBuilder id(@NonNull final UUID id) {
+		public Builder id(@NonNull final UUID id) {
 			operations.add(l -> l.id = id);
 			return this;
 		}
 
 		@Override
-		public LocationBuilder code(@NonNull final String code) {
+		public Builder code(@NonNull final String code) {
 			operations.add(l -> l.code = code);
 			return this;
 		}
 
 		@Override
-		public LocationBuilder description(@NonNull final String description) {
+		public Builder description(@NonNull final String description) {
 			operations.add(l -> l.description = description);
 			return this;
 		}
 
 		@Override
-		public LocationBuilder obsoleteDate(@NonNull final LocalDateTime obsoleteDate) {
+		public Builder createdDate(@NonNull final LocalDateTime createdDate) {
+			operations.add(l -> l.createdDate = createdDate);
+			return this;
+		}
+
+		@Override
+		public Builder obsoleteDate(final LocalDateTime obsoleteDate) {
 			operations.add(l -> l.obsoleteDate = obsoleteDate);
 			return this;
 		}
 
 		@Override
-		public LocationBuilder name(@NonNull final String name) {
+		public Builder name(@NonNull final String name) {
 			operations.add(l -> l.name = name);
 			return this;
 		}
@@ -88,7 +91,7 @@ public final class Location implements Serializable {
 			this.code(location.code);
 			this.name(location.name);
 			this.description(location.description);
-			this.obsoleteDate(location.createdDate);
+			this.createdDate(location.createdDate);
 			this.obsoleteDate(location.obsoleteDate);
 			return this;
 		}
@@ -109,12 +112,15 @@ public final class Location implements Serializable {
 	public Optional<LocalDateTime> getObsoleteDate() {
 		return Optional.ofNullable(this.obsoleteDate);
 	}
+
 	public boolean isObsolete() {
-		return isObsoleteAfter(LocalDateTime.now());
+		return isObsoleteFrom(LocalDateTime.now());
 	}
-	public boolean isObsoleteAfter(LocalDateTime referenceDatetime) {
-		return this.getObsoleteDate().orElse(LocalDateTime.MAX).isAfter(referenceDatetime);
+
+	public boolean isObsoleteFrom(LocalDateTime referenceDatetime) {
+		return this.getObsoleteDate().orElse(LocalDateTime.MAX).isBefore(referenceDatetime);
 	}
+
 	public static LocationNameBuilder builder() {
 		return new Location.Builder();
 	}

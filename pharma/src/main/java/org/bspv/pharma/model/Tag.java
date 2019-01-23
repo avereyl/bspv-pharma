@@ -56,7 +56,7 @@ public final class Tag implements Serializable {
 			return this;
 		}
 
-		public Builder clone(Tag tag) {
+		private Builder clone(Tag tag) {
 			this.key(tag.key);
 			this.value(tag.value);
 			return this;

@@ -47,24 +47,24 @@ public final class Order implements Serializable {
 			this.operations.add(o -> o.createdDate = createdDate);
 			return this;
 		}
-		public Builder sentDate(@NonNull LocalDateTime sentDate) {
+		public Builder sentDate(LocalDateTime sentDate) {
 			this.operations.add(o -> o.sentDate = sentDate);
 			return this;
 		}
-		public Builder receivedDate(@NonNull LocalDateTime receivedDate) {
+		public Builder receivedDate(LocalDateTime receivedDate) {
 			this.operations.add(o -> o.receivedDate = receivedDate);
 			return this;
 		}
-		public Builder validatedDate(@NonNull LocalDateTime validatedDate) {
+		public Builder validatedDate(LocalDateTime validatedDate) {
 			this.operations.add(o -> o.validatedDate = validatedDate);
 			return this;
 		}
 
-		public Builder userResponsibleForCreation(@NonNull UUID userResponsibleForCreation) {
+		public Builder userResponsibleForCreation(UUID userResponsibleForCreation) {
 			this.operations.add(o -> o.userResponsibleForCreation = userResponsibleForCreation);
 			return this;
 		}
-		public Builder userResponsibleForValidation(@NonNull UUID userResponsibleForValidation) {
+		public Builder userResponsibleForValidation(UUID userResponsibleForValidation) {
 			this.operations.add(o -> o.userResponsibleForValidation = userResponsibleForValidation);
 			return this;
 		}
@@ -103,7 +103,7 @@ public final class Order implements Serializable {
 		}
 		
 		
-		public Builder clone(Order order) {
+		private Builder clone(Order order) {
 			this.id(order.id);
 			this.createdDate(order.createdDate);
 			this.sentDate(order.sentDate);
@@ -117,7 +117,6 @@ public final class Order implements Serializable {
 			this.extraItems(order.extraItems);
 			return this;
 		}
-
 
 
 		public Order build() {

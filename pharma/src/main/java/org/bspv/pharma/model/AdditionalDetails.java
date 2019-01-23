@@ -70,7 +70,7 @@ public final class AdditionalDetails implements Serializable {
 			return this;
 		}
 
-		public Builder clone(AdditionalDetails additionalDetails) {
+		private Builder clone(AdditionalDetails additionalDetails) {
 			this.key(additionalDetails.key);
 			this.value(additionalDetails.value);
 			this.valueDate(additionalDetails.valueDate);

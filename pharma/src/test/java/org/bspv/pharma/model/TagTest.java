@@ -55,5 +55,14 @@ public class TagTest {
 		assertFalse("No value should be found", batteryTag.getValue().isPresent());
 		assertFalse("No value should be found", expiryTag.getValue().isPresent());
 	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void missingKeyBuildingTest() {
+		//given
+		String key = null;
+		//when
+		Tag.builder().key(key).build();
+		//then -> should fire an exception
+	}
 
 }

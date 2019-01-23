@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -108,6 +109,8 @@ public final class StockPosition implements Serializable {
 	 * Some {@link AdditionalDetails} on this stock position.
 	 */
 	private final Set<AdditionalDetails> additionalDetails = new HashSet<>();
+	
+	private UUID responsibleUser;
 
 	/**
 	 * 
@@ -135,6 +138,8 @@ public final class StockPosition implements Serializable {
 		StockPositionBuilder additionalDetails();
 		StockPositionBuilder additionalDetail(@NonNull AdditionalDetails detail);
 		StockPositionBuilder additionalDetails(@NonNull Set<AdditionalDetails> details);
+		StockPositionBuilder responsibleUser(UUID responsibleUser);
+		StockPosition build();
 	}
 	
 	public static final class Builder implements StockPositionLocationBuilder, StockPositionGoodsBuilder, StockPositionBuilder {
@@ -144,6 +149,7 @@ public final class StockPosition implements Serializable {
 
 		private final List<Consumer<StockPosition>> operations = new ArrayList<>();
 
+		@Override
 		public StockPosition build() {
 			StockPosition stockPosition = new StockPosition();
 			this.operations.forEach(c -> c.accept(stockPosition));
@@ -241,12 +247,18 @@ public final class StockPosition implements Serializable {
 			return this;
 		}
 		
+		@Override
+		public Builder responsibleUser(UUID responsibleUser) {
+			this.operations.add(sp -> sp.responsibleUser = responsibleUser);
+			return this;
+		}
+
 		/**
 		 * Building a stockPosition from a given one.
 		 * @param stockPosition The source stock position.
 		 * @return The builder filled with appropriate operation to reproduce given stock position.
 		 */
-		public Builder clone(StockPosition stockPosition) {
+		private Builder clone(StockPosition stockPosition) {
 			this.id(stockPosition.id);
 			this.minimum(stockPosition.minimum);
 			this.maximum(stockPosition.maximum);
@@ -258,12 +270,13 @@ public final class StockPosition implements Serializable {
 			this.goods(stockPosition.goods);
 			this.location(stockPosition.location);
 			this.additionalDetails(stockPosition.additionalDetails);
+			this.responsibleUser(stockPosition.responsibleUser);
 			return this;
 		}
 
 	}
 
-	public static final StockPosition.Builder builder() {
+	public static final StockPositionLocationBuilder builder() {
 		return new StockPosition.Builder();
 	}
 	public final Builder toBuilder() {
@@ -274,6 +287,10 @@ public final class StockPosition implements Serializable {
 	 * Should use the builder instead.
 	 */
 	private StockPosition() {
+	}
+	
+	public Optional<UUID> getResponsibleUser() {
+		return Optional.ofNullable(this.responsibleUser);
 	}
 	
 	/**
@@ -288,13 +305,15 @@ public final class StockPosition implements Serializable {
 	 * @param movement Movement to apply
 	 * @return true if movement can be applied to stock position false otherwise
 	 */
-	public boolean canMovementBeAppliedImmediately(final StockPosition position, final Movement movement) {
+	public static boolean canMovementBeAppliedImmediately(final StockPosition position, final Movement movement) {
 		boolean valid = true;
-		valid &= !position.getValueDate().isAfter(movement.getValueDate());
-		valid &= position.getGoods().equals(movement.getGoods());
-		valid &= position.getLocation().equals(movement.getLocation());
+		valid &= mayMovementBeApplied(position, movement);
 		valid &= (position.getCurrent() + movement.getQuantity()) >= 0;
 		return valid;
+	}
+	
+	public boolean canMovementBeAppliedImmediately(final Movement movement) {
+		return StockPosition.canMovementBeAppliedImmediately(this, movement);
 	}
 	/**
 	 * Check if the given movement may be applied to the given stock position.
@@ -307,26 +326,30 @@ public final class StockPosition implements Serializable {
 	 * @param movement Movement to apply
 	 * @return true if movement can be applied to stock position false otherwise
 	 */
-	public boolean mayMovementBeApplied(final StockPosition position, final Movement movement) {
+	public static boolean mayMovementBeApplied(final StockPosition position, final Movement movement) {
 		boolean valid = true;
 		valid &= !position.getValueDate().isAfter(movement.getValueDate());
 		valid &= position.getGoods().equals(movement.getGoods());
 		valid &= position.getLocation().equals(movement.getLocation());
 		return valid;
 	}
+	
+	public boolean mayMovementBeApplied(final Movement movement) {
+		return StockPosition.mayMovementBeApplied(this, movement);
+	}
 
 	public StockPosition computeNewPosition(final Movement movement) {
 		if (!canMovementBeAppliedImmediately(this, movement)) {
 			throw new IllegalArgumentException("Cannot apply movement to stockPosition, please check, goods, location, value date and quantity.");
 		}
-		StockPosition.Builder builder = StockPosition.builder().clone(this);
+		StockPosition.Builder builder = this.toBuilder();
 		builder.current(this.current + movement.getQuantity());
 		return builder.build();
 	}
 	
 	public StockPosition computeNewPositionSilently(final Movement movement) {
 		if (canMovementBeAppliedImmediately(this, movement)) {
-			StockPosition.Builder builder = StockPosition.builder().clone(this);
+			StockPosition.Builder builder = this.toBuilder();
 			builder.current(this.current + movement.getQuantity());
 			return builder.build();
 		}
@@ -352,7 +375,7 @@ public final class StockPosition implements Serializable {
 				throw new IllegalArgumentException("Movement cannot be applied to this stock position.");
 			}
 		}
-		return StockPosition.builder().clone(this).current(valueAfterMovements).build();
+		return this.toBuilder().current(valueAfterMovements).build();
 	}
 	
 	
@@ -373,7 +396,7 @@ public final class StockPosition implements Serializable {
 				log.warn("Ignoring movement {} to this position, please check value date, goods and location.", movement);
 			}
 		}
-		return StockPosition.builder().clone(this).current(valueAfterMovements).build();
+		return this.toBuilder().current(valueAfterMovements).build();
 	}
 
 }
