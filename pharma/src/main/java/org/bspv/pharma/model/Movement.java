@@ -174,21 +174,24 @@ public final class Movement implements Serializable {
 
 		@Override
 		public Builder quantity(@NonNull Integer quantity) {
-			Integer signedQuantity = sign == null ? quantity : sign.apply(quantity);
+			// if sign is unknown -> positive by default
+			Integer signedQuantity = sign == null ? Math.abs(quantity) : sign.apply(quantity);
 			this.operations.add(sp -> sp.quantity = signedQuantity);
 			return this;
 		}
 
 		@Override
 		public Builder from(@NonNull Location location) {
-			// ensure quantity is negative
+			// ensure quantity is negative (quantity method could be called before or after this method)
+			this.sign = i -> Math.abs(i)*-1;
 			this.operations.add(sp -> sp.quantity = Math.abs(sp.quantity)*-1);
 			return location(location);
 		}
 
 		@Override
 		public Builder to(@NonNull Location location) {
-			// ensure quantity is positive
+			// ensure quantity is positive (quantity method could be called before or after this method)
+			this.sign =  Math::abs;
 			this.operations.add(sp -> sp.quantity = Math.abs(sp.quantity));
 			return location(location);
 		}

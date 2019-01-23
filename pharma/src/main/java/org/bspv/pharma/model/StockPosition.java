@@ -386,10 +386,11 @@ public final class StockPosition implements Serializable {
 		Integer valueAfterMovements = this.getCurrent();
 		for (Movement movement : sortedMovements) {
 			if (mayMovementBeApplied(this, movement)) {
-				if (valueAfterMovements + movement.getQuantity() < 0) {
-					log.warn("Ignoring movement {}, resulting quantity would be negative.", movement);
+				valueAfterMovements += movement.getQuantity();
+				if (valueAfterMovements < 0) {
+					log.error("Failed to apply movement {}, resulting quantity would be negative.", movement);
+					throw new IllegalArgumentException("Trying to remove more goods than available !");
 				} else {
-					valueAfterMovements += movement.getQuantity();
 					log.debug("Applying movement {} to stock position {} (current:{})", movement, this.getId(), valueAfterMovements);
 				}
 			} else {

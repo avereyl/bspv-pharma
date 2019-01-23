@@ -7,7 +7,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -262,9 +264,78 @@ public class StockPositionTest {
 	}
 
 	@Test
-	public void computeNewPositionFromSeveralMovementsTest() {
+	public void computeNewPositionFromSeveralMovementsSuccessfullyTest() {
 		// given
+		Location location = Location.builder().name("").build();
+		Goods goods = Goods.builder().name("").build();
+		LocalDateTime now = LocalDateTime.now();
+		Integer start = 10;
+		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start).build();
+		List<Movement> movements = new ArrayList<>();
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();//expect 8
+		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(3).build();//expect 5
+		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(location).quantity(8).build();//expect 13
+		Movement m3 = m2.toBuilder().valueDate(now.plusMinutes(4)).quantity(3).build();//expect 16
+		Movement m4 = m0.toBuilder().valueDate(now.plusMinutes(5)).quantity(10).build();//expect 6
+		
+		movements.add(m0);
+		movements.add(m1);
+		movements.add(m2);
+		movements.add(m3);
+		movements.add(m4);
 		// when
+		StockPosition newPosition = position.computeNewPosition(movements);
+		// then
+		assertEquals(new Integer(6), newPosition.getCurrent());
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void computeNewPositionFromSeveralMovementsWithFailure01Test() {
+		Location location = Location.builder().name("").build();
+		Goods goods = Goods.builder().name("").build();
+		LocalDateTime now = LocalDateTime.now();
+		Integer start = 10;
+		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start).build();
+		List<Movement> movements = new ArrayList<>();
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();//expect 8
+		Movement m4 = m0.toBuilder().valueDate(now.plusMinutes(1)).quantity(10).build();//expect failure
+		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(3).build();
+		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(location).quantity(8).build();
+		Movement m3 = m2.toBuilder().valueDate(now.plusMinutes(4)).quantity(3).build();
+		
+		movements.add(m0);
+		movements.add(m1);
+		movements.add(m2);
+		movements.add(m3);
+		movements.add(m4);
+		// when
+		position.computeNewPosition(movements);
+		// then
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public void computeNewPositionFromSeveralMovementsWithFailure02Test() {
+		// given
+		Location location = Location.builder().name("").build();
+		Location otherLocation = Location.builder().name("").build();
+		Goods goods = Goods.builder().name("").build();
+		LocalDateTime now = LocalDateTime.now();
+		Integer start = 10;
+		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start)
+				.build();
+		List<Movement> movements = new ArrayList<>();
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();// expect 8
+		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(3).build();// expect 5
+		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(otherLocation).quantity(8).build();// failure
+		Movement m3 = m2.toBuilder().valueDate(now.plusMinutes(4)).quantity(3).build();
+		Movement m4 = m0.toBuilder().valueDate(now.plusMinutes(5)).quantity(10).build();
+
+		movements.add(m0);
+		movements.add(m1);
+		movements.add(m2);
+		movements.add(m3);
+		movements.add(m4);
+		// when
+		position.computeNewPosition(movements);
 		// then
 	}
 
@@ -282,6 +353,7 @@ public class StockPositionTest {
 		// then
 		assertEquals(new Integer(0), newPosition.getCurrent());
 	}
+	
 	@Test
 	public void computeNewPositionSilentlyWithFailureFromOneMovementTest() {
 		// given
@@ -298,10 +370,84 @@ public class StockPositionTest {
 	}
 
 	@Test
-	public void computeNewPositionSilentlyFromSeveralMovementsTest() {
+	public void computeNewPositionSilentlyFromSeveralMovementsSuccessfullyTest() {
 		// given
+		Location location = Location.builder().name("").build();
+		Goods goods = Goods.builder().name("").build();
+		LocalDateTime now = LocalDateTime.now();
+		Integer start = 10;
+		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start).build();
+		List<Movement> movements = new ArrayList<>();
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();//expect 8
+		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(3).build();//expect 5
+		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(location).quantity(8).build();//expect 13
+		Movement m3 = m2.toBuilder().valueDate(now.plusMinutes(4)).quantity(3).build();//expect 16
+		Movement m4 = m0.toBuilder().valueDate(now.plusMinutes(5)).quantity(10).build();//expect 6
+
+		movements.add(m0);
+		movements.add(m1);
+		movements.add(m2);
+		movements.add(m3);
+		movements.add(m4);
 		// when
+		StockPosition newPosition = position.computeNewPositionSilently(movements);
 		// then
+		assertEquals(new Integer(6), newPosition.getCurrent());
+	}
+	@Test
+	public void computeNewPositionSilentlyFromSeveralMovementsWithFailureIgnoredTest() {
+		// given
+		Location location = Location.builder().name("").build();
+		Location otherLocation = Location.builder().name("").build();
+		Goods goods = Goods.builder().name("").build();
+		LocalDateTime now = LocalDateTime.now();
+		Integer start = 10;
+		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start)
+				.build();
+		List<Movement> movements = new ArrayList<>();
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();// expect 8
+		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(3).build();// expect 5
+		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(otherLocation).quantity(8).build();// ignored
+		Movement m3 = m0.toBuilder().valueDate(now.plusMinutes(4)).to(location).quantity(3).build();// expect 8
+		Movement m4 = m0.toBuilder().valueDate(now.plusMinutes(5)).quantity(8).build();// expect 0
+
+		movements.add(m0);
+		movements.add(m1);
+		movements.add(m2);
+		movements.add(m3);
+		movements.add(m4);
+		// when
+		StockPosition newPosition = position.computeNewPositionSilently(movements);
+		// then
+		assertEquals(new Integer(0), newPosition.getCurrent());
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void computeNewPositionSilentlyFromSeveralMovementsWithFailureTest() {
+		// given
+		Location location = Location.builder().name("").build();
+		Location otherLocation = Location.builder().name("").build();
+		Goods goods = Goods.builder().name("").build();
+		LocalDateTime now = LocalDateTime.now();
+		Integer start = 10;
+		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start)
+				.build();
+		List<Movement> movements = new ArrayList<>();
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();// expect 8
+		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(9).build();// failure
+		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(otherLocation).quantity(8).build();// ignored
+		Movement m3 = m0.toBuilder().valueDate(now.plusMinutes(4)).to(location).quantity(3).build();
+		Movement m4 = m0.toBuilder().valueDate(now.plusMinutes(5)).quantity(8).build();
+		
+		movements.add(m0);
+		movements.add(m1);
+		movements.add(m2);
+		movements.add(m3);
+		movements.add(m4);
+		// when
+		StockPosition newPosition = position.computeNewPositionSilently(movements);
+		// then
+		assertEquals(new Integer(0), newPosition.getCurrent());
 	}
 
 }
