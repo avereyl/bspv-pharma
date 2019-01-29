@@ -1,11 +1,13 @@
 package org.bspv.pharma.model;
 
+import static org.assertj.core.api.Assertions.fail;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+import org.bspv.pharma.model.AdditionalDetails.DetailsType;
 import org.junit.Test;
 
 public class AdditionalDetailsTest {
@@ -14,50 +16,120 @@ public class AdditionalDetailsTest {
 	@Test
 	public void minimalBuildingTest() {
 		//given
-		String key = "KEY";
 		//when
-		AdditionalDetails details = AdditionalDetails.builder().key(key).build();
+		AdditionalDetails details = AdditionalDetails.builder().type(DetailsType.MISC).build();
 		//then
-		assertEquals("Key of the tag should be the given key.", key, details.getKey());
-		assertFalse("No value should be found", details.getValue().isPresent());
+		assertEquals("Key of the tag should be the given key.", DetailsType.MISC, details.getType());
+		assertEquals("Empty value should be found", "", details.getValue());
+		assertNotNull("Validity start date should be set", details.getValidityStartDate());
+		assertNotNull("Validity end date should be set", details.getValidityEndDate());
 		assertNotNull("Value date should be set", details.getValueDate());
+		assertEquals(details.getValidityEndDate(), details.getValueDate());
 	}
 	
 	@Test
 	public void maximalBuildingTest() {
 		//given
-		String key = "KEY";
-		String value = "value";
-		LocalDateTime valueDate = LocalDateTime.now();
+		UUID id = UUID.randomUUID();
+		DetailsType type = DetailsType.COMMENT;
+		String value = "This is a comment!";
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime valueDate = now;
+		LocalDateTime validityStartDate = now;
+		LocalDateTime validityEndDate = now.plusDays(7);
 		//when
-		AdditionalDetails details = AdditionalDetails.builder().key(key).value(value).valueDate(valueDate).build();
+		// @formatter:off
+		AdditionalDetails details = AdditionalDetails.builder()
+				.type(type)
+				.id(id)
+				.value(value)
+				.valueDate(valueDate)
+				.validFrom(validityStartDate)
+				.validUntil(validityEndDate)
+				.build();
+		// @formatter:on
 		//then
-		assertEquals("Key should be the given key.", key, details.getKey());
-		assertEquals("Value should be equal to the given value", value, details.getValue().get());
-		assertEquals("Value date should be equal to the given value date", valueDate, details.getValueDate());
+		assertEquals(id, details.getId());
+		assertEquals(type, details.getType());
+		assertEquals(value, details.getValue());
+		assertEquals(valueDate, details.getValueDate());
+		assertEquals(validityStartDate, details.getValidityStartDate());
+		assertEquals(validityEndDate, details.getValidityEndDate());
 	}
 	
 	@Test
 	public void copyBuildingTest() {
-		//given
-		String key = "KEY";
-		String value = "value";
-		LocalDateTime valueDate = LocalDateTime.now();
+		UUID id = UUID.randomUUID();
+		DetailsType type = DetailsType.COMMENT;
+		String value = "This is a comment!";
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime valueDate = now;
+		LocalDateTime validityStartDate = now;
+		LocalDateTime validityEndDate = now.plusDays(7);
 		//when
-		AdditionalDetails details = AdditionalDetails.builder().key(key).value(value).valueDate(valueDate).build();
+		// @formatter:off
+		AdditionalDetails details = AdditionalDetails.builder()
+				.type(type)
+				.id(id)
+				.value(value)
+				.valueDate(valueDate)
+				.validFrom(validityStartDate)
+				.validUntil(validityEndDate)
+				.build();
+		// @formatter:on
 		AdditionalDetails detailsCopy = details.toBuilder().build();
 		//then
-		assertEquals("Both keys should be equal.", detailsCopy.getKey(), details.getKey());
-		assertEquals("Both values should be equal.", detailsCopy.getValue().get(), details.getValue().get());
-		assertEquals("Both value dates should be equal.", detailsCopy.getValueDate(), details.getValueDate());
+		assertEquals(details.getId(), detailsCopy.getId());
+		assertEquals(details.getType(), detailsCopy.getType());
+		assertEquals(details.getValue(), detailsCopy.getValue());
+		assertEquals(details.getValueDate(), detailsCopy.getValueDate());
+		assertEquals(details.getValidityStartDate(), detailsCopy.getValidityStartDate());
+		assertEquals(details.getValidityEndDate(), detailsCopy.getValidityEndDate());
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
-	public void missingKeyBuildingTest() {
-		//given
-		String key = null;
-		//when
-		AdditionalDetails.builder().key(key).build();
-		//then -> should fire an exception
+	@Test
+	public void missingArgumlentsBuildingTest() {
+		try {
+			// when
+			AdditionalDetails.builder().type(null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		try {
+			// when
+			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).id(null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		try {
+			// when
+			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).value(null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		try {
+			// when
+			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).valueDate(null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		try {
+			// when
+			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).validFrom(null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		try {
+			// when
+			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).validUntil(null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
 	}
 }

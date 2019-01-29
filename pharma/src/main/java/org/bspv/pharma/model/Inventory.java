@@ -44,11 +44,11 @@ public final class Inventory implements Serializable {
 			return this;
 		}
 		public Builder position(@NonNull StockPosition position) {
-			this.operations.add(i -> i.positions.add(position));
+			this.operations.add(i -> i.positions.add(position.toBuilder().linkedInventory(i).build()));
 			return this;
 		}
 		public Builder positions(@NonNull Set<StockPosition> positions) {
-			this.operations.add(i -> i.positions.addAll(positions));
+			positions.forEach(this::position);
 			return this;
 		}
 		public Builder positions() {

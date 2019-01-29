@@ -111,6 +111,11 @@ public final class StockPosition implements Serializable {
 	private final Set<AdditionalDetails> additionalDetails = new HashSet<>();
 	
 	private UUID responsibleUser;
+	
+	/**
+	 * Reference to an optional inventory
+	 */
+	private Inventory linkedInventory;
 
 	/**
 	 * 
@@ -139,6 +144,7 @@ public final class StockPosition implements Serializable {
 		StockPositionBuilder additionalDetail(@NonNull AdditionalDetails detail);
 		StockPositionBuilder additionalDetails(@NonNull Set<AdditionalDetails> details);
 		StockPositionBuilder responsibleUser(UUID responsibleUser);
+		StockPositionBuilder linkedInventory(Inventory linkedInventory);
 		StockPosition build();
 	}
 	
@@ -253,6 +259,12 @@ public final class StockPosition implements Serializable {
 			return this;
 		}
 
+		@Override
+		public StockPositionBuilder linkedInventory(Inventory linkedInventory) {
+			this.operations.add(sp -> sp.linkedInventory = linkedInventory);
+			return this;
+		}
+
 		/**
 		 * Building a stockPosition from a given one.
 		 * @param stockPosition The source stock position.
@@ -271,6 +283,7 @@ public final class StockPosition implements Serializable {
 			this.location(stockPosition.location);
 			this.additionalDetails(stockPosition.additionalDetails);
 			this.responsibleUser(stockPosition.responsibleUser);
+			this.linkedInventory(stockPosition.linkedInventory);
 			return this;
 		}
 
@@ -291,6 +304,10 @@ public final class StockPosition implements Serializable {
 	
 	public Optional<UUID> getResponsibleUser() {
 		return Optional.ofNullable(this.responsibleUser);
+	}
+	
+	public Optional<Inventory> getLinkedInventory() {
+		return Optional.ofNullable(this.linkedInventory);
 	}
 	
 	/**

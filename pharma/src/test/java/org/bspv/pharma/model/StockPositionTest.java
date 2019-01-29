@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+import org.bspv.pharma.model.AdditionalDetails.DetailsType;
 import org.junit.Test;
 
 public class StockPositionTest {
@@ -38,6 +39,7 @@ public class StockPositionTest {
 		assertNotNull(position.getAdditionalDetails());
 		assertTrue(position.getAdditionalDetails().isEmpty());
 		assertFalse(position.getResponsibleUser().isPresent());
+		assertFalse(position.getLinkedInventory().isPresent());
 	}
 
 	@Test
@@ -52,7 +54,7 @@ public class StockPositionTest {
 		Integer minimum = 5;
 		Integer maximum = 20;
 		Integer optimum = 15;
-		AdditionalDetails additionalDetail = AdditionalDetails.builder().key("KEY").build();
+		AdditionalDetails additionalDetail = AdditionalDetails.builder().type(DetailsType.MISC).build();
 		UUID responsibleUser = UUID.randomUUID();
 		// when
 		// @formatter:off
