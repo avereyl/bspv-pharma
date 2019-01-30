@@ -39,6 +39,7 @@ public class TagTest {
 		Tag tag = Tag.builder().key(key).value(value).build();
 		Tag copyTag = tag.toBuilder().build();
 		//then
+		assertEquals(tag, copyTag);
 		assertEquals("Key of the tag should be the given key.", tag.getKey(), copyTag.getKey());
 		assertEquals("Value of the tag should be equal to the given value", tag.getValue().get(), copyTag.getValue().get());
 	}

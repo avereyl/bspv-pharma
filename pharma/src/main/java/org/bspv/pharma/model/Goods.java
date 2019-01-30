@@ -6,6 +6,7 @@ package org.bspv.pharma.model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -13,14 +14,18 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 /**
  * 
  * @author guillaume
  *
  */
+@ToString
+@EqualsAndHashCode(of = { "id" })
 public final class Goods implements Serializable {
 
 	/**
@@ -34,6 +39,7 @@ public final class Goods implements Serializable {
 
 	public static interface GoodsBuilder {
 		GoodsBuilder id(@NonNull UUID id);
+		GoodsBuilder version(@NonNull Long version);
 		GoodsBuilder description(@NonNull String description);
 		GoodsBuilder createdDate(@NonNull LocalDateTime createdDate);
 		GoodsBuilder lastUpdatedDate(LocalDateTime lastUpdatedDate);
@@ -59,6 +65,11 @@ public final class Goods implements Serializable {
 		@Override
 		public Builder id(@NonNull UUID id) {
 			operations.add(g -> g.id = id);
+			return this;
+		}
+		@Override
+		public Builder version(@NonNull Long version) {
+			this.operations.add(o -> o.version = version);
 			return this;
 		}
 
@@ -118,19 +129,19 @@ public final class Goods implements Serializable {
 
 		@Override
 		public Builder tag(@NonNull Tag tag) {
-			operations.add(g -> g.getTags().add(tag));
+			operations.add(g -> g.tags.add(tag));
 			return this;
 		}
 
 		@Override
 		public Builder tags() {
-			operations.add(g -> g.getTags().clear());
+			operations.add(g -> g.tags.clear());
 			return this;
 		}
 
 		@Override
 		public Builder tags(@NonNull Set<Tag> tags) {
-			operations.add(g -> g.getTags().addAll(tags));
+			operations.add(g -> g.tags.addAll(tags));
 			return this;
 		}
 
@@ -150,6 +161,7 @@ public final class Goods implements Serializable {
 			operations.forEach(c -> c.accept(goods));
 			// handling default values
 			goods.id = goods.id == null ? UUID.randomUUID() : goods.id;
+			goods.version = goods.version == null ? 0 : goods.version;
 			goods.description= goods.description == null ? "" : goods.description;
 			goods.createdDate= goods.createdDate == null ? LocalDateTime.now() : goods.createdDate;
 			goods.minimumOrderQuantity= goods.minimumOrderQuantity == null ? 1 : goods.minimumOrderQuantity;
@@ -160,6 +172,7 @@ public final class Goods implements Serializable {
 
 		private Builder clone(Goods goods) {
 			this.id(goods.id);
+			this.version(goods.version);
 			this.name(goods.name);
 			this.description(goods.description);
 			this.createdDate(goods.createdDate);
@@ -170,7 +183,7 @@ public final class Goods implements Serializable {
 			this.minimumOrderQuantity(goods.minimumOrderQuantity);
 			this.maximumOrderQuantity(goods.maximumOrderQuantity);
 			this.optimumOrderQuantity(goods.optimumOrderQuantity);
-			this.tags(goods.getTags());
+			this.tags(goods.tags);
 			return this;
 		}
 	}
@@ -183,6 +196,11 @@ public final class Goods implements Serializable {
 	 */
 	@Getter
 	private UUID id;
+	/**
+	 * Version number for optimistic locking.
+	 */
+	@Getter
+	private Long version;
 	@Getter
 	private String name;
 	@Getter
@@ -202,7 +220,7 @@ public final class Goods implements Serializable {
 	private Integer maximumOrderQuantity;
 	@Getter
 	private Integer optimumOrderQuantity;
-	@Getter
+
 	private final Set<Tag> tags = new HashSet<>();
 	
 	public Optional<LocalDateTime> getLastUpdatedDate(){
@@ -217,6 +235,9 @@ public final class Goods implements Serializable {
 
 	public Optional<Location> getDefaultLocation() {
 		return Optional.ofNullable(this.defaultLocation);
+	}
+	public Set<Tag> getTags() {
+		return Collections.unmodifiableSet(this.tags);
 	}
 	
 	public boolean isDeprecated() {

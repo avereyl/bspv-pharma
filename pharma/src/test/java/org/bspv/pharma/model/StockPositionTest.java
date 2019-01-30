@@ -34,6 +34,7 @@ public class StockPositionTest {
 		assertEquals(defaultValue, position.getOptimum());
 		assertEquals(StockPosition.StockPostitionType.COMPUTED, position.getType());
 		assertNotNull(position.getId());
+		assertNotNull(position.getVersion());
 		assertNotNull(position.getCreatedDate());
 		assertNotNull(position.getValueDate());
 		assertNotNull(position.getAdditionalDetails());
@@ -48,6 +49,7 @@ public class StockPositionTest {
 		Location location = Location.builder().name("").build();
 		Goods goods = Goods.builder().name("").build();
 		UUID id = UUID.randomUUID();
+		Long version = 1L;
 		LocalDateTime createdDate = LocalDateTime.now();
 		LocalDateTime valueDate = LocalDateTime.now();
 		Integer current = 10;
@@ -58,7 +60,7 @@ public class StockPositionTest {
 		UUID responsibleUser = UUID.randomUUID();
 		// when
 		// @formatter:off
-		StockPosition position = StockPosition.builder().location(location).goods(goods).id(id).createdDate(createdDate)
+		StockPosition position = StockPosition.builder().location(location).goods(goods).id(id).version(version).createdDate(createdDate)
 				.valueDate(valueDate).current(current).minimum(minimum).maximum(maximum).optimum(optimum).pending()
 				.computed().checked().additionalDetails().additionalDetails(new HashSet<>())
 				.additionalDetail(additionalDetail).responsibleUser(responsibleUser).build();
@@ -72,6 +74,7 @@ public class StockPositionTest {
 		assertEquals(optimum, position.getOptimum());
 		assertEquals(StockPosition.StockPostitionType.CHECKED, position.getType());
 		assertEquals(id, position.getId());
+		assertEquals(version, position.getVersion());
 		assertEquals(createdDate, position.getCreatedDate());
 		assertEquals(valueDate, position.getValueDate());
 		assertEquals(1, position.getAdditionalDetails().size());
@@ -88,6 +91,7 @@ public class StockPositionTest {
 		StockPosition position = StockPosition.builder().location(location).goods(goods).build();
 		StockPosition positionCopy = position.toBuilder().build();
 		// then
+		assertEquals(position, positionCopy);
 		assertEquals(position.getLocation(), positionCopy.getLocation());
 		assertEquals(position.getGoods(), positionCopy.getGoods());
 		assertEquals(position.getCurrent(), positionCopy.getCurrent());
@@ -96,6 +100,7 @@ public class StockPositionTest {
 		assertEquals(position.getOptimum(), positionCopy.getOptimum());
 		assertEquals(position.getType(), positionCopy.getType());
 		assertEquals(position.getId(), positionCopy.getId());
+		assertEquals(position.getVersion(), positionCopy.getVersion());
 		assertEquals(position.getCreatedDate(), positionCopy.getCreatedDate());
 		assertEquals(position.getValueDate(), positionCopy.getValueDate());
 		assertEquals(position.getAdditionalDetails(), positionCopy.getAdditionalDetails());
@@ -131,6 +136,13 @@ public class StockPositionTest {
 		try {
 			// when
 			StockPosition.builder().location(location).goods(goods).id(null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		try {
+			// when
+			StockPosition.builder().location(location).goods(goods).version(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then

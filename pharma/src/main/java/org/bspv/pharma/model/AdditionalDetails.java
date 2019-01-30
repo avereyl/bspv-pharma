@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 /**
  * Additional details for a stock position. Allow a user to store some more
@@ -18,6 +20,8 @@ import lombok.NonNull;
  * @author guillaume
  *
  */
+@ToString
+@EqualsAndHashCode(of = { "id" })
 public final class AdditionalDetails implements Serializable {
 
 	/**

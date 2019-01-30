@@ -21,6 +21,7 @@ public class InventoryTest {
 		Inventory inventory = Inventory.builder().build();
 		// then
 		assertNotNull(inventory.getId());
+		assertNotNull(inventory.getVersion());
 		assertNotNull(inventory.getCreatedDate());
 		assertNotNull(inventory.getComment());
 		assertNotNull(inventory.getPositions());
@@ -34,6 +35,7 @@ public class InventoryTest {
 	public void maximalBuildingTest() {
 		// given
 		UUID id = UUID.randomUUID();
+		Long version = 1L;
 		LocalDateTime createdDate = LocalDateTime.now();
 		String comment = "comment";
 		Location location = Location.builder().name("location").build();
@@ -44,12 +46,13 @@ public class InventoryTest {
 
 		// when
 		// @formatter:off
-		Inventory inventory = Inventory.builder().id(id).createdDate(createdDate).comment(comment).positions()
+		Inventory inventory = Inventory.builder().id(id).version(version).createdDate(createdDate).comment(comment).positions()
 				.positions(new HashSet<>()).position(position).responsibleUser(responsibleUser).closedDate(closedDate)
 				.build();
 		// @formatter:on
 		// then
 		assertEquals(id, inventory.getId());
+		assertEquals(version, inventory.getVersion());
 		assertEquals(createdDate, inventory.getCreatedDate());
 		assertEquals(comment, inventory.getComment());
 		assertEquals(1, inventory.getPositions().size());
@@ -65,7 +68,9 @@ public class InventoryTest {
 		Inventory inventory = Inventory.builder().build();
 		Inventory inventoryCopy = inventory.toBuilder().build();
 		// then
+		assertEquals(inventory, inventoryCopy);
 		assertEquals(inventory.getId(), inventoryCopy.getId());
+		assertEquals(inventory.getVersion(), inventoryCopy.getVersion());
 		assertEquals(inventory.getCreatedDate(), inventoryCopy.getCreatedDate());
 		assertEquals(inventory.getComment(), inventoryCopy.getComment());
 		assertEquals(inventory.getPositions(), inventoryCopy.getPositions());
@@ -79,6 +84,14 @@ public class InventoryTest {
 		// when
 		try {
 			Inventory.builder().id(null).build();
+			// then
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		// when
+		try {
+			Inventory.builder().version(null).build();
 			// then
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {

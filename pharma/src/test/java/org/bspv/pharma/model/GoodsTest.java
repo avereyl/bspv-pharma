@@ -23,6 +23,7 @@ public class GoodsTest {
 		// then
 		assertEquals("Name of the location should be the given name.", name, goods.getName());
 		assertNotNull(goods.getId());
+		assertNotNull(goods.getVersion());
 		assertNotNull(goods.getCreatedDate());
 		assertNotNull(goods.getDescription());
 		assertNotNull(goods.getMinimumOrderQuantity());
@@ -40,6 +41,7 @@ public class GoodsTest {
 		// given
 		String name = "name of the goods";
 		UUID id = UUID.randomUUID();
+		Long version = 1L;
 		LocalDateTime createdDate = LocalDateTime.now();
 		LocalDateTime lastUpdatedDate = LocalDateTime.now();
 		LocalDateTime deprecatedDate = lastUpdatedDate.plusYears(1L);
@@ -52,7 +54,7 @@ public class GoodsTest {
 		Tag tag = Tag.builder().key("TAG").build();
 		// when
 		// @formatter:off
-		Goods goods = Goods.builder().name(name).id(id).createdDate(createdDate).lastUpdatedDate(lastUpdatedDate)
+		Goods goods = Goods.builder().name(name).id(id).version(version).createdDate(createdDate).lastUpdatedDate(lastUpdatedDate)
 				.defaultLocation(defaultLocation).description(description).deprecatedDate(deprecatedDate)
 				.obsoleteDate(obsoleteDate).minimumOrderQuantity(minimumOrderQuantity)
 				.maximumOrderQuantity(maximumOrderQuantity).optimumOrderQuantity(optimumOrderQuantity).tags()
@@ -61,6 +63,7 @@ public class GoodsTest {
 		// then
 		assertEquals("Name of the location should be the given name.", name, goods.getName());
 		assertEquals(id, goods.getId());
+		assertEquals(version, goods.getVersion());
 		assertEquals(createdDate, goods.getCreatedDate());
 		assertEquals(lastUpdatedDate, goods.getLastUpdatedDate().get());
 		assertEquals(defaultLocation, goods.getDefaultLocation().get());
@@ -79,6 +82,7 @@ public class GoodsTest {
 		// given
 		String name = "name of the goods";
 		UUID id = UUID.randomUUID();
+		Long version = 1L;
 		LocalDateTime createdDate = LocalDateTime.now();
 		LocalDateTime lastUpdatedDate = LocalDateTime.now();
 		LocalDateTime deprecatedDate = lastUpdatedDate.plusYears(1L);
@@ -91,7 +95,7 @@ public class GoodsTest {
 		Tag tag = Tag.builder().key("TAG").build();
 		// when
 		// @formatter:off
-		Goods goods = Goods.builder().name(name).id(id).createdDate(createdDate).lastUpdatedDate(lastUpdatedDate)
+		Goods goods = Goods.builder().name(name).id(id).version(version).createdDate(createdDate).lastUpdatedDate(lastUpdatedDate)
 				.defaultLocation(defaultLocation).description(description).deprecatedDate(deprecatedDate)
 				.obsoleteDate(obsoleteDate).minimumOrderQuantity(minimumOrderQuantity)
 				.maximumOrderQuantity(maximumOrderQuantity).optimumOrderQuantity(optimumOrderQuantity).tags()
@@ -99,8 +103,10 @@ public class GoodsTest {
 		// @formatter:on
 		Goods goodsCopy = goods.toBuilder().build();
 		// then
+		assertEquals(goods, goodsCopy);//convention
 		assertEquals("Name of the location should be the given name.", goods.getName(), goods.getName());
 		assertEquals(goodsCopy.getId(), goods.getId());
+		assertEquals(goodsCopy.getVersion(), goods.getVersion());
 		assertEquals(goodsCopy.getCreatedDate(), goods.getCreatedDate());
 		assertEquals(goodsCopy.getLastUpdatedDate(), goods.getLastUpdatedDate());
 		assertEquals(goodsCopy.getDefaultLocation(), goods.getDefaultLocation());
@@ -132,6 +138,13 @@ public class GoodsTest {
 		try {
 			// when
 			Goods.builder().name(name).id(null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		try {
+			// when
+			Goods.builder().name(name).version(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then

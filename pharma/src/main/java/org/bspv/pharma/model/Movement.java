@@ -9,14 +9,18 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 /**
  * 
  * @author guillaume
  *
  */
+@ToString
+@EqualsAndHashCode(of = { "id" })
 public final class Movement implements Serializable {
 
 	/**
@@ -48,6 +52,11 @@ public final class Movement implements Serializable {
 	 */
 	@Getter
 	private UUID id;
+	/**
+	 * Version number for optimistic locking.
+	 */
+	@Getter
+	private Long version;
 
 	/**
 	 * Goods concerned.
@@ -139,6 +148,7 @@ public final class Movement implements Serializable {
 
 	public static interface MovementBuilder {
 		MovementBuilder id(@NonNull UUID id);
+		MovementBuilder version(@NonNull Long version);
 		MovementBuilder reason(@NonNull MovementReason reason);
 		MovementBuilder createdDate(@NonNull LocalDateTime createdDate);
 		MovementBuilder valueDate(@NonNull LocalDateTime valueDate);
@@ -157,8 +167,14 @@ public final class Movement implements Serializable {
 		private Function<Integer, Integer> sign = null;
 		private final List<Consumer<Movement>> operations = new ArrayList<>();
 
+		@Override
 		public Builder id(@NonNull UUID id) {
 			this.operations.add(sp -> sp.id = id);
+			return this;
+		}
+		@Override
+		public Builder version(@NonNull Long version) {
+			this.operations.add(o -> o.version = version);
 			return this;
 		}
 
@@ -243,6 +259,7 @@ public final class Movement implements Serializable {
 			this.operations.forEach(c -> c.accept(movement));
 			// handling default values
 			movement.id = movement.id == null ? UUID.randomUUID() : movement.id;
+			movement.version = movement.version == null ? 0 : movement.version;
 			movement.reason = movement.reason == null ? MovementReason.UNKNOWN : movement.reason;
 			LocalDateTime now = LocalDateTime.now();
 			movement.createdDate = movement.createdDate == null ? now : movement.createdDate;
@@ -253,6 +270,7 @@ public final class Movement implements Serializable {
 		private Builder clone(Movement movement) {
 			this.sign =  (movement.quantity > 0) ? Math::abs : i -> Math.abs(i)*-1;
 			this.id(movement.id);
+			this.version(movement.version);
 			this.goods(movement.goods);
 			this.location(movement.location);
 			this.quantity(movement.quantity);

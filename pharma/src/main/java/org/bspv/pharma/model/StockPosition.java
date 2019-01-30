@@ -12,8 +12,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -25,7 +27,8 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-@Getter
+@ToString
+@EqualsAndHashCode(of = { "id" })
 public final class StockPosition implements Serializable {
 
 	/**
@@ -52,28 +55,38 @@ public final class StockPosition implements Serializable {
 	/**
 	 * Identifier of this position.
 	 */
+	@Getter
 	private UUID id;
 	
+	/**
+	 * Version number for optimistic locking.
+	 */
+	@Getter
+	private Long version;
 	/**
 	 * Minimal amount of goods expected for this location. Can be use as a threshold
 	 * to fire a new order.
 	 */
+	@Getter
 	private Integer minimum;
 	
 	/**
 	 * Maximal amount of goods expected for this location.
 	 */
+	@Getter
 	private Integer maximum;
 	
 	/**
 	 * Optimal amount of goods expected for this location.
 	 */
+	@Getter
 	private Integer optimum;
 	
 	/**
 	 * Current (at the value date) amount of goods computed or checked for this
 	 * location.
 	 */
+	@Getter
 	private Integer current;
 	
 	/**
@@ -81,11 +94,13 @@ public final class StockPosition implements Serializable {
 	 * 
 	 * @see StockPostitionType
 	 */
+	@Getter
 	private StockPostitionType type;
 	
 	/**
 	 * Date of creation of this stock position.
 	 */
+	@Getter
 	private LocalDateTime createdDate;
 	
 	/**
@@ -93,16 +108,19 @@ public final class StockPosition implements Serializable {
 	 * this{@link #createdDate}, or before/after createdDate if trying to compute
 	 * status in the past or in the future
 	 */
+	@Getter
 	private LocalDateTime valueDate;
 	
 	/**
 	 * Goods concerned by this position.
 	 */
+	@Getter
 	private Goods goods;
 	
 	/**
 	 * Location concerned by this position.
 	 */
+	@Getter
 	private Location location;
 
 	/**
@@ -130,6 +148,7 @@ public final class StockPosition implements Serializable {
 	}
 	public static interface StockPositionBuilder{
 		StockPositionBuilder id(@NonNull UUID id);
+		StockPositionBuilder version(@NonNull Long version);
 		StockPositionBuilder minimum(@NonNull Integer minimum);
 		StockPositionBuilder maximum(@NonNull Integer maximum);
 		StockPositionBuilder optimum(@NonNull Integer optimum);
@@ -161,6 +180,7 @@ public final class StockPosition implements Serializable {
 			this.operations.forEach(c -> c.accept(stockPosition));
 			// handling default values
 			stockPosition.id = stockPosition.id == null ? UUID.randomUUID() : stockPosition.id;
+			stockPosition.version = stockPosition.version == null ? 0 : stockPosition.version;
 			stockPosition.minimum = stockPosition.minimum == null ? 0 : stockPosition.minimum;
 			stockPosition.maximum = stockPosition.maximum == null ? 0 : stockPosition.maximum;
 			stockPosition.optimum = stockPosition.optimum == null ? 0 : stockPosition.optimum;
@@ -175,6 +195,11 @@ public final class StockPosition implements Serializable {
 		@Override
 		public Builder id(@NonNull UUID id) {
 			this.operations.add(sp -> sp.id = id);
+			return this;
+		}
+		@Override
+		public Builder version(@NonNull Long version) {
+			this.operations.add(o -> o.version = version);
 			return this;
 		}
 		@Override
@@ -272,6 +297,7 @@ public final class StockPosition implements Serializable {
 		 */
 		private Builder clone(StockPosition stockPosition) {
 			this.id(stockPosition.id);
+			this.version(stockPosition.version);
 			this.minimum(stockPosition.minimum);
 			this.maximum(stockPosition.maximum);
 			this.optimum(stockPosition.optimum);
@@ -308,6 +334,10 @@ public final class StockPosition implements Serializable {
 	
 	public Optional<Inventory> getLinkedInventory() {
 		return Optional.ofNullable(this.linkedInventory);
+	}
+	
+	public Set<AdditionalDetails> getAdditionalDetails() {
+		return Collections.unmodifiableSet(this.additionalDetails);
 	}
 	
 	/**
@@ -416,5 +446,6 @@ public final class StockPosition implements Serializable {
 		}
 		return this.toBuilder().current(valueAfterMovements).build();
 	}
+
 
 }

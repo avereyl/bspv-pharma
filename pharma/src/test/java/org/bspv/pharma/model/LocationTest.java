@@ -21,6 +21,7 @@ public class LocationTest {
 		// then
 		assertEquals("Name of the location should be the given name.", name, location.getName());
 		assertNotNull(location.getId());
+		assertNotNull(location.getVersion());
 		assertNotNull(location.getCode());
 		assertNotNull(location.getCreatedDate());
 		assertNotNull(location.getDescription());
@@ -32,16 +33,18 @@ public class LocationTest {
 		// given
 		String name = "Location name";
 		UUID id = UUID.randomUUID();
+		Long version = 1L;
 		String code = "CODE";
 		String description = "My description for this location";
 		LocalDateTime createdDate = LocalDateTime.now();
 		LocalDateTime obsoleteDate = LocalDateTime.now();
 		// when
-		Location location = Location.builder().name(name).id(id).code(code).description(description)
+		Location location = Location.builder().name(name).id(id).version(version).code(code).description(description)
 				.createdDate(createdDate).obsoleteDate(obsoleteDate).build();
 		// then
 		assertEquals("Name of the location should be the given name.", name, location.getName());
 		assertEquals(id, location.getId());
+		assertEquals(version, location.getVersion());
 		assertEquals(code, location.getCode());
 		assertEquals(description, location.getDescription());
 		assertEquals(createdDate, location.getCreatedDate());
@@ -56,8 +59,10 @@ public class LocationTest {
 		Location location = Location.builder().name(name).build();
 		Location locationCopy = location.toBuilder().build();
 		// then
+		assertEquals(locationCopy, location);
 		assertEquals(locationCopy.getName(), location.getName());
 		assertEquals(locationCopy.getId(), location.getId());
+		assertEquals(locationCopy.getVersion(), location.getVersion());
 		assertEquals(locationCopy.getCode(), location.getCode());
 		assertEquals(locationCopy.getCreatedDate(), location.getCreatedDate());
 		assertEquals(locationCopy.getDescription(), location.getDescription());
@@ -81,9 +86,16 @@ public class LocationTest {
 	public void nullExtraElementBuildingTest() {
 		// given
 		String name = "Location name";
+		// when
 		try {
-			// when
 			Location.builder().name(name).id(null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		// when
+		try {
+			Location.builder().name(name).version(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then

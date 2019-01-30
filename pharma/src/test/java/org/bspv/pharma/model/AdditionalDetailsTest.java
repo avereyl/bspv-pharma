@@ -79,6 +79,7 @@ public class AdditionalDetailsTest {
 		// @formatter:on
 		AdditionalDetails detailsCopy = details.toBuilder().build();
 		//then
+		assertEquals(details, detailsCopy);//convention
 		assertEquals(details.getId(), detailsCopy.getId());
 		assertEquals(details.getType(), detailsCopy.getType());
 		assertEquals(details.getValue(), detailsCopy.getValue());

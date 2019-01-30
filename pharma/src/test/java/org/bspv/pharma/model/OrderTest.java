@@ -22,6 +22,7 @@ public class OrderTest {
 		Order order = Order.builder().build();
 		// then
 		assertNotNull(order.getId());
+		assertNotNull(order.getVersion());
 		assertNotNull(order.getCreatedDate());
 		assertNotNull(order.getInternalComment());
 		assertNotNull(order.getExternalComment());
@@ -38,6 +39,7 @@ public class OrderTest {
 	public void maximalBuildingTest() {
 		// given
 		UUID id = UUID.randomUUID();
+		Long version = 1L;
 		LocalDateTime createdDate = LocalDateTime.now();
 		String internalComment = "internalComment";
 		String externalComment = "externalComment";
@@ -54,6 +56,7 @@ public class OrderTest {
 		// @formatter:off
 		Order order = Order.builder()
 				.id(id)
+				.version(version)
 				.createdDate(createdDate)
 				.internalComment(internalComment)
 				.externalComment(externalComment)
@@ -72,6 +75,7 @@ public class OrderTest {
 		// @formatter:on
 		// then
 		assertEquals(id, order.getId());
+		assertEquals(version, order.getVersion());
 		assertEquals(createdDate, order.getCreatedDate());
 		assertEquals(internalComment, order.getInternalComment());
 		assertEquals(externalComment, order.getExternalComment());
@@ -95,7 +99,9 @@ public class OrderTest {
 		Order order = Order.builder().build();
 		Order orderCopy = order.toBuilder().build();
 		// then
+		assertEquals(order, orderCopy);
 		assertEquals(order.getId(), orderCopy.getId());
+		assertEquals(order.getVersion(), orderCopy.getVersion());
 		assertEquals(order.getCreatedDate(), orderCopy.getCreatedDate());
 		assertEquals(order.getInternalComment(), orderCopy.getInternalComment());
 		assertEquals(order.getExternalComment(), orderCopy.getExternalComment());
@@ -114,6 +120,13 @@ public class OrderTest {
 		// when
 		try {
 			Order.builder().id(null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		// when
+		try {
+			Order.builder().version(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then

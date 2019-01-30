@@ -27,6 +27,7 @@ public class MovementTest {
 
 		// then
 		assertNotNull("Id should not be null!", movement.getId());
+		assertNotNull("Version should not be null!", movement.getVersion());
 		assertEquals("Goods should be equals", goods, movement.getGoods());
 		assertEquals("Quantity should be negative and equals to -qty", new Integer(-1 * qty), movement.getQuantity());
 		assertEquals("Location should be equals", location, movement.getLocation());
@@ -45,6 +46,7 @@ public class MovementTest {
 		Integer qty = 10;
 		Location location = Location.builder().name("location").build();
 		UUID id = UUID.randomUUID();
+		Long version = 1L;
 		MovementReason reason = MovementReason.CONSUMPTION;
 		LocalDateTime createdDate = LocalDateTime.now();
 		LocalDateTime valueDate = LocalDateTime.now();
@@ -53,13 +55,25 @@ public class MovementTest {
 		UUID responsibleUser = UUID.randomUUID();
 
 		// when
-		Movement movement = Movement.builder().of(goods).quantity(qty).from(location).id(id).reason(reason)
-				.createdDate(createdDate).valueDate(valueDate).linkedMovement(linkedMovement).linkedOrder(linkedOrder)
-				.responsibleUser(responsibleUser).build();
+		// @formatter:off
+		Movement movement = Movement.builder()
+				.of(goods)
+				.quantity(qty)
+				.from(location)
+				.id(id)
+				.version(version)
+				.reason(reason)
+				.createdDate(createdDate)
+				.valueDate(valueDate)
+				.linkedMovement(linkedMovement)
+				.linkedOrder(linkedOrder)
+				.responsibleUser(responsibleUser)
+				.build();
+		// @formatter:on
 
 		// then
 		assertEquals("Id should be equal to given value", id, movement.getId());
-		assertEquals("Goods should be equal to given value", goods, movement.getGoods());
+		assertEquals("Version should be equal to given value", version, movement.getVersion());
 		assertEquals("Quantity should be negative and equals to -qty", new Integer(-1 * qty), movement.getQuantity());
 		assertEquals("Location should be equal to given value", location, movement.getLocation());
 		assertEquals("CreatedDate should be equal to given value", createdDate, movement.getCreatedDate());
@@ -85,7 +99,9 @@ public class MovementTest {
 		Movement movementCopy = movement.toBuilder().build();
 
 		// then
+		assertEquals(movementCopy, movement);
 		assertEquals("Both should be equal!", movementCopy.getId(), movement.getId());
+		assertEquals("Both should be equal!", movementCopy.getVersion(), movement.getVersion());
 		assertEquals("Both should be equal!", movementCopy.getGoods(), movement.getGoods());
 		assertEquals("Both should be equal!", movementCopy.getQuantity(), movement.getQuantity());
 		assertEquals("Both should be equal!", movementCopy.getLocation(), movement.getLocation());
@@ -146,6 +162,13 @@ public class MovementTest {
 		// when
 		try {
 			Movement.builder().of(goods).quantity(qty).from(location).id(null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		// when
+		try {
+			Movement.builder().of(goods).quantity(qty).from(location).version(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then

@@ -8,9 +8,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode(of = { "id" })
 public final class Location implements Serializable {
 
 	/**
@@ -28,6 +32,7 @@ public final class Location implements Serializable {
 
 	public static interface LocationBuilder {
 		LocationBuilder id(@NonNull final UUID id);
+		LocationBuilder version(@NonNull final Long version);
 		LocationBuilder code(@NonNull final String code);
 		LocationBuilder description(@NonNull final String description);
 		LocationBuilder createdDate(@NonNull final LocalDateTime createdDate);
@@ -42,6 +47,11 @@ public final class Location implements Serializable {
 		@Override
 		public Builder id(@NonNull final UUID id) {
 			operations.add(l -> l.id = id);
+			return this;
+		}
+		@Override
+		public Builder version(@NonNull final Long version) {
+			operations.add(l -> l.version = version);
 			return this;
 		}
 
@@ -80,6 +90,7 @@ public final class Location implements Serializable {
 			this.operations.forEach(c -> c.accept(location));
 			// handling default values
 			location.id = location.id == null ? UUID.randomUUID() : location.id;
+			location.version = location.version == null ? 0L : location.version;
 			location.code = location.code == null ? location.id.toString().substring(24) : location.code;
 			location.description = location.description == null ? "" : location.description;
 			location.createdDate = location.createdDate == null ? LocalDateTime.now() : location.createdDate;
@@ -88,6 +99,7 @@ public final class Location implements Serializable {
 
 		private Builder clone(Location location) {
 			this.id(location.id);
+			this.version(location.version);
 			this.code(location.code);
 			this.name(location.name);
 			this.description(location.description);
@@ -99,6 +111,11 @@ public final class Location implements Serializable {
 
 	@Getter
 	private UUID id;
+	/**
+	 * Version number for optimistic locking.
+	 */
+	@Getter
+	private Long version;
 	@Getter
 	private String code;
 	@Getter

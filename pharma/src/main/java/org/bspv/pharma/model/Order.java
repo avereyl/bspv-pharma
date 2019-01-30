@@ -3,6 +3,7 @@ package org.bspv.pharma.model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +11,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode(of = { "id" })
 public final class Order implements Serializable {
 
 	/**
@@ -41,6 +46,10 @@ public final class Order implements Serializable {
 
 		public Builder id(@NonNull UUID id) {
 			this.operations.add(o -> o.id = id);
+			return this;
+		}
+		public Builder version(@NonNull Long version) {
+			this.operations.add(o -> o.version = version);
 			return this;
 		}
 		public Builder createdDate(@NonNull LocalDateTime createdDate) {
@@ -105,6 +114,7 @@ public final class Order implements Serializable {
 		
 		private Builder clone(Order order) {
 			this.id(order.id);
+			this.version(order.version);
 			this.createdDate(order.createdDate);
 			this.sentDate(order.sentDate);
 			this.receivedDate(order.receivedDate);
@@ -124,6 +134,7 @@ public final class Order implements Serializable {
 			this.operations.forEach(c -> c.accept(order));
 			// handling default values
 			order.id = order.id == null ? UUID.randomUUID() : order.id;
+			order.version = order.version == null ? 0 : order.version;
 			order.createdDate = order.createdDate == null ? LocalDateTime.now() : order.createdDate;
 			order.internalComment = order.internalComment == null ? "" : order.internalComment;
 			order.externalComment = order.externalComment == null ? "" : order.externalComment;
@@ -134,7 +145,11 @@ public final class Order implements Serializable {
 
 	@Getter
 	private UUID id;
-
+	/**
+	 * Version number for optimistic locking.
+	 */
+	@Getter
+	private Long version;
 	@Getter
 	private LocalDateTime createdDate;
 
@@ -150,9 +165,7 @@ public final class Order implements Serializable {
 	@Getter
 	private String externalComment;
 
-	@Getter
 	private final Map<Goods, Integer> items = new LinkedHashMap<>();
-	@Getter
 	private final Map<String, Integer> extraItems = new LinkedHashMap<>();
 
 	public Optional<LocalDateTime> getReceivedDate() {
@@ -174,4 +187,14 @@ public final class Order implements Serializable {
 	public Optional<UUID> getUserResponsibleForValidation() {
 		return Optional.ofNullable(this.userResponsibleForValidation);
 	}
+
+	public Map<Goods, Integer> getItems() {
+		return Collections.unmodifiableMap(this.items);
+	}
+
+	public Map<String, Integer> getExtraItems() {
+		return Collections.unmodifiableMap(this.extraItems);
+	}
+	
+	
 }
