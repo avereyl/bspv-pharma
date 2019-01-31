@@ -64,6 +64,16 @@ public final class StockPosition implements Serializable {
 	@Getter
 	private Long version;
 	/**
+	 * Date of creation of this stock position.
+	 */
+	@Getter
+	private LocalDateTime createdDate;
+	/**
+	 * Id of the user/process responsible for this position creation.
+	 */
+	@Getter
+	private UUID createdBy;
+	/**
 	 * Minimal amount of goods expected for this location. Can be use as a threshold
 	 * to fire a new order.
 	 */
@@ -98,12 +108,6 @@ public final class StockPosition implements Serializable {
 	private StockPostitionType type;
 	
 	/**
-	 * Date of creation of this stock position.
-	 */
-	@Getter
-	private LocalDateTime createdDate;
-	
-	/**
 	 * Date of value of this stock position. May be equals to the
 	 * this{@link #createdDate}, or before/after createdDate if trying to compute
 	 * status in the past or in the future
@@ -128,8 +132,6 @@ public final class StockPosition implements Serializable {
 	 */
 	private final Set<AdditionalDetails> additionalDetails = new HashSet<>();
 	
-	private UUID responsibleUser;
-	
 	/**
 	 * Reference to an optional inventory
 	 */
@@ -144,11 +146,15 @@ public final class StockPosition implements Serializable {
 		StockPositionGoodsBuilder location(@NonNull Location location);
 	}
 	public static interface StockPositionGoodsBuilder{
-		StockPositionBuilder goods(@NonNull Goods goods);
+		StockPositionCreatedByBuilder goods(@NonNull Goods goods);
+	}
+	public static interface StockPositionCreatedByBuilder{
+		StockPositionBuilder createdBy(@NonNull UUID createdBy);
 	}
 	public static interface StockPositionBuilder{
 		StockPositionBuilder id(@NonNull UUID id);
 		StockPositionBuilder version(@NonNull Long version);
+		StockPositionBuilder createdDate(@NonNull LocalDateTime createdDate);
 		StockPositionBuilder minimum(@NonNull Integer minimum);
 		StockPositionBuilder maximum(@NonNull Integer maximum);
 		StockPositionBuilder optimum(@NonNull Integer optimum);
@@ -157,17 +163,15 @@ public final class StockPosition implements Serializable {
 		StockPositionBuilder checked();
 		StockPositionBuilder computed();
 		StockPositionBuilder pending();
-		StockPositionBuilder createdDate(@NonNull LocalDateTime createdDate);
 		StockPositionBuilder valueDate(@NonNull LocalDateTime valueDate);
 		StockPositionBuilder additionalDetails();
 		StockPositionBuilder additionalDetail(@NonNull AdditionalDetails detail);
 		StockPositionBuilder additionalDetails(@NonNull Set<AdditionalDetails> details);
-		StockPositionBuilder responsibleUser(UUID responsibleUser);
 		StockPositionBuilder linkedInventory(Inventory linkedInventory);
 		StockPosition build();
 	}
 	
-	public static final class Builder implements StockPositionLocationBuilder, StockPositionGoodsBuilder, StockPositionBuilder {
+	public static final class Builder implements StockPositionLocationBuilder, StockPositionGoodsBuilder, StockPositionCreatedByBuilder, StockPositionBuilder {
 
 		private Builder() {
 		}
@@ -199,9 +203,16 @@ public final class StockPosition implements Serializable {
 		}
 		@Override
 		public Builder version(@NonNull Long version) {
-			this.operations.add(o -> o.version = version);
+			this.operations.add(sp -> sp.version = version);
 			return this;
 		}
+		
+		@Override
+		public StockPositionBuilder createdBy(@NonNull UUID createdBy) {
+			this.operations.add(sp -> sp.createdBy = createdBy);
+			return this;
+		}
+
 		@Override
 		public Builder minimum(@NonNull Integer minimum) {
 			this.operations.add(sp -> sp.minimum = minimum);
@@ -279,12 +290,6 @@ public final class StockPosition implements Serializable {
 		}
 		
 		@Override
-		public Builder responsibleUser(UUID responsibleUser) {
-			this.operations.add(sp -> sp.responsibleUser = responsibleUser);
-			return this;
-		}
-
-		@Override
 		public StockPositionBuilder linkedInventory(Inventory linkedInventory) {
 			this.operations.add(sp -> sp.linkedInventory = linkedInventory);
 			return this;
@@ -298,17 +303,17 @@ public final class StockPosition implements Serializable {
 		private Builder clone(StockPosition stockPosition) {
 			this.id(stockPosition.id);
 			this.version(stockPosition.version);
+			this.createdBy(stockPosition.createdBy);
+			this.createdDate(stockPosition.createdDate);
 			this.minimum(stockPosition.minimum);
 			this.maximum(stockPosition.maximum);
 			this.optimum(stockPosition.optimum);
 			this.current(stockPosition.current);
 			this.type(stockPosition.type);
-			this.createdDate(stockPosition.createdDate);
 			this.valueDate(stockPosition.valueDate);
 			this.goods(stockPosition.goods);
 			this.location(stockPosition.location);
 			this.additionalDetails(stockPosition.additionalDetails);
-			this.responsibleUser(stockPosition.responsibleUser);
 			this.linkedInventory(stockPosition.linkedInventory);
 			return this;
 		}
@@ -326,10 +331,6 @@ public final class StockPosition implements Serializable {
 	 * Should use the builder instead.
 	 */
 	private StockPosition() {
-	}
-	
-	public Optional<UUID> getResponsibleUser() {
-		return Optional.ofNullable(this.responsibleUser);
 	}
 	
 	public Optional<Inventory> getLinkedInventory() {

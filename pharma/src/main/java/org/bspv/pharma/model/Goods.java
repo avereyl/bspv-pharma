@@ -33,8 +33,50 @@ public final class Goods implements Serializable {
 	 */
 	private static final long serialVersionUID = -2516920878572437352L;
 	
+	private Goods() {//use builder instead
+	}
+
+	/**
+	 * Identifier of this piece of goods.
+	 */
+	@Getter
+	private UUID id;
+	/**
+	 * Version number for optimistic locking.
+	 */
+	@Getter
+	private Long version;
+	@Getter
+	private UUID createdBy;
+	@Getter
+	private LocalDateTime createdDate;
+	
+	private UUID lastModifiedBy;//might be null
+	private LocalDateTime lastModifiedDate;//might be null
+	
+	@Getter
+	private String name;
+	@Getter
+	private String description;
+	
+	private LocalDateTime deprecatedDate;//might be null
+	private LocalDateTime obsoleteDate;//might be null
+	private Location defaultLocation;//might be null
+	
+	@Getter
+	private Integer minimumOrderQuantity;
+	@Getter
+	private Integer maximumOrderQuantity;
+	@Getter
+	private Integer optimumOrderQuantity;
+
+	private final Set<Tag> tags = new HashSet<>();// getter return a RO collection 
+	
 	public static interface GoodsNameBuilder {
-		GoodsBuilder name(@NonNull String name);
+		GoodsCreatedByBuilder name(@NonNull String name);
+	}
+	public static interface GoodsCreatedByBuilder {
+		GoodsBuilder createdBy(@NonNull UUID createdBy);
 	}
 
 	public static interface GoodsBuilder {
@@ -42,20 +84,21 @@ public final class Goods implements Serializable {
 		GoodsBuilder version(@NonNull Long version);
 		GoodsBuilder description(@NonNull String description);
 		GoodsBuilder createdDate(@NonNull LocalDateTime createdDate);
-		GoodsBuilder lastUpdatedDate(LocalDateTime lastUpdatedDate);
+		GoodsBuilder lastModifiedBy(UUID uuid);
+		GoodsBuilder lastModifiedDate(LocalDateTime lastUpdatedDate);
 		GoodsBuilder deprecatedDate(LocalDateTime deprecatedDate);
 		GoodsBuilder obsoleteDate(LocalDateTime obsoleteDate);
 		GoodsBuilder defaultLocation(Location defaultLocation);
 		GoodsBuilder minimumOrderQuantity(@NonNull Integer minimumOrderQuantity);
 		GoodsBuilder maximumOrderQuantity(@NonNull Integer maximumOrderQuantity);
 		GoodsBuilder optimumOrderQuantity(@NonNull Integer optimumOrderQuantity);
-		GoodsBuilder tag(@NonNull Tag tag);
 		GoodsBuilder tags();
+		GoodsBuilder tag(@NonNull Tag tag);
 		GoodsBuilder tags(@NonNull Set<Tag> tags);
 		Goods build();
 	}
 
-	public static class Builder implements GoodsNameBuilder, GoodsBuilder {
+	public static class Builder implements GoodsNameBuilder, GoodsCreatedByBuilder, GoodsBuilder {
 
 		private final List<Consumer<Goods>> operations = new ArrayList<>();
 
@@ -80,14 +123,25 @@ public final class Goods implements Serializable {
 		}
 
 		@Override
+		public Builder createdBy(@NonNull UUID createdBy) {
+			operations.add(g -> g.createdBy = createdBy);
+			return this;
+		}
+
+		@Override
 		public Builder createdDate(@NonNull LocalDateTime createdDate) {
 			operations.add(g -> g.createdDate = createdDate);
 			return this;
 		}
 
 		@Override
-		public Builder lastUpdatedDate(LocalDateTime lastUpdatedDate) {
-			operations.add(g -> g.lastUpdatedDate = lastUpdatedDate);
+		public Builder lastModifiedBy(UUID lastModifiedBy) {
+			operations.add(g -> g.lastModifiedBy = lastModifiedBy);
+			return this;
+		}
+		@Override
+		public Builder lastModifiedDate(LocalDateTime lastModifiedDate) {
+			operations.add(g -> g.lastModifiedDate = lastModifiedDate);
 			return this;
 		}
 
@@ -175,8 +229,10 @@ public final class Goods implements Serializable {
 			this.version(goods.version);
 			this.name(goods.name);
 			this.description(goods.description);
+			this.createdBy(goods.createdBy);
 			this.createdDate(goods.createdDate);
-			this.lastUpdatedDate(goods.lastUpdatedDate);
+			this.lastModifiedBy(goods.lastModifiedBy);
+			this.lastModifiedDate(goods.lastModifiedDate);
 			this.deprecatedDate(goods.deprecatedDate);
 			this.obsoleteDate(goods.obsoleteDate);
 			this.defaultLocation(goods.defaultLocation);
@@ -188,43 +244,13 @@ public final class Goods implements Serializable {
 		}
 	}
 
-	private Goods() {//use builder instead
+	
+	
+	public Optional<UUID> getLastModifiedBy(){
+		return Optional.ofNullable(this.lastModifiedBy);
 	}
-
-	/**
-	 * Identifier of this piece of goods.
-	 */
-	@Getter
-	private UUID id;
-	/**
-	 * Version number for optimistic locking.
-	 */
-	@Getter
-	private Long version;
-	@Getter
-	private String name;
-	@Getter
-	private String description;
-	@Getter
-	private LocalDateTime createdDate;
-	
-	private LocalDateTime lastUpdatedDate;
-	private LocalDateTime deprecatedDate;
-	private LocalDateTime obsoleteDate;
-
-	private Location defaultLocation;
-	
-	@Getter
-	private Integer minimumOrderQuantity;
-	@Getter
-	private Integer maximumOrderQuantity;
-	@Getter
-	private Integer optimumOrderQuantity;
-
-	private final Set<Tag> tags = new HashSet<>();
-	
-	public Optional<LocalDateTime> getLastUpdatedDate(){
-		return Optional.ofNullable(this.lastUpdatedDate);
+	public Optional<LocalDateTime> getLastModifiedDate(){
+		return Optional.ofNullable(this.lastModifiedDate);
 	}
 	public Optional<LocalDateTime> getDeprecatedDate(){
 		return Optional.ofNullable(this.deprecatedDate);
@@ -232,7 +258,6 @@ public final class Goods implements Serializable {
 	public Optional<LocalDateTime> getObsoleteDate(){
 		return Optional.ofNullable(this.obsoleteDate);
 	}
-
 	public Optional<Location> getDefaultLocation() {
 		return Optional.ofNullable(this.defaultLocation);
 	}

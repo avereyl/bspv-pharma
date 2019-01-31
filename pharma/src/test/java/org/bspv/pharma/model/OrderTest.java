@@ -2,7 +2,6 @@ package org.bspv.pharma.model;
 
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -14,12 +13,14 @@ import java.util.UUID;
 import org.junit.Test;
 
 public class OrderTest {
+	
+	private final static UUID testID = UUID.randomUUID();
 
 	@Test
 	public void minimalBuildingTest() {
 		// given
 		// when
-		Order order = Order.builder().build();
+		Order order = Order.builder().createdBy(testID).build();
 		// then
 		assertNotNull(order.getId());
 		assertNotNull(order.getVersion());
@@ -28,11 +29,6 @@ public class OrderTest {
 		assertNotNull(order.getExternalComment());
 		assertNotNull(order.getItems());
 		assertNotNull(order.getExtraItems());
-		assertFalse(order.getSentDate().isPresent());
-		assertFalse(order.getReceivedDate().isPresent());
-		assertFalse(order.getValidatedDate().isPresent());
-		assertFalse(order.getUserResponsibleForCreation().isPresent());
-		assertFalse(order.getUserResponsibleForValidation().isPresent());
 	}
 
 	@Test
@@ -44,17 +40,13 @@ public class OrderTest {
 		String internalComment = "internalComment";
 		String externalComment = "externalComment";
 		Map<Goods, Integer> items = new HashMap<>();
-		Goods goods = Goods.builder().name("goods").build();
+		Goods goods = Goods.builder().name("goods").createdBy(testID).build();
 		Integer quantity = 1;
 		Map<String, Integer> extraItems = new HashMap<>();
-		LocalDateTime sentDate = LocalDateTime.now();
-		LocalDateTime receivedDate = LocalDateTime.now();
-		LocalDateTime validatedDate = LocalDateTime.now();
-		UUID userResponsibleForCreation = UUID.randomUUID();
-		UUID userResponsibleForValidation = UUID.randomUUID();
 		// when
 		// @formatter:off
 		Order order = Order.builder()
+				.createdBy(testID)
 				.id(id)
 				.version(version)
 				.createdDate(createdDate)
@@ -66,11 +58,6 @@ public class OrderTest {
 				.extraItems()
 				.extraItems(extraItems)
 				.extraItem("extra items", quantity)
-				.sentDate(sentDate)
-				.receivedDate(receivedDate)
-				.validatedDate(validatedDate)
-				.userResponsibleForCreation(userResponsibleForCreation)
-				.userResponsibleForValidation(userResponsibleForValidation)
 				.build();
 		// @formatter:on
 		// then
@@ -85,18 +72,13 @@ public class OrderTest {
 		assertEquals(quantity, order.getItems().get(goods));
 		assertEquals(1, order.getExtraItems().size());
 		
-		assertEquals(sentDate, order.getSentDate().get());
-		assertEquals(receivedDate, order.getReceivedDate().get());
-		assertEquals(validatedDate, order.getValidatedDate().get());
-		assertEquals(userResponsibleForCreation, order.getUserResponsibleForCreation().get());
-		assertEquals(userResponsibleForValidation, order.getUserResponsibleForValidation().get());
 	}
 
 	@Test
 	public void copyBuildingTest() {
 		// given
 		// when
-		Order order = Order.builder().build();
+		Order order = Order.builder().createdBy(testID).build();
 		Order orderCopy = order.toBuilder().build();
 		// then
 		assertEquals(order, orderCopy);
@@ -107,11 +89,6 @@ public class OrderTest {
 		assertEquals(order.getExternalComment(), orderCopy.getExternalComment());
 		assertEquals(order.getItems(), orderCopy.getItems());
 		assertEquals(order.getExtraItems(), orderCopy.getExtraItems());
-		assertEquals(order.getSentDate(), orderCopy.getSentDate());
-		assertEquals(order.getReceivedDate(), orderCopy.getReceivedDate());
-		assertEquals(order.getValidatedDate(), orderCopy.getValidatedDate());
-		assertEquals(order.getUserResponsibleForCreation(), orderCopy.getUserResponsibleForCreation());
-		assertEquals(order.getUserResponsibleForValidation(), orderCopy.getUserResponsibleForValidation());
 	}
 	
 	@Test
@@ -119,76 +96,76 @@ public class OrderTest {
 		// given
 		// when
 		try {
-			Order.builder().id(null).build();
+			Order.builder().createdBy(testID).id(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Order.builder().version(null).build();
+			Order.builder().createdBy(testID).version(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Order.builder().createdDate(null).build();
+			Order.builder().createdBy(testID).createdDate(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Order.builder().internalComment(null).build();
+			Order.builder().createdBy(testID).internalComment(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Order.builder().externalComment(null).build();
+			Order.builder().createdBy(testID).externalComment(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Order.builder().item(null, 1).build();
+			Order.builder().createdBy(testID).item(null, 1).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
-			Order.builder().item(Goods.builder().name("").build(), null).build();
-			fail("Should have failed with an IllegalArgumentException.");
-		} catch (IllegalArgumentException e) {
-			// then
-		}
-		// when
-		try {
-			Order.builder().items(null).build();
+			Order.builder().createdBy(testID).item(Goods.builder().name("").createdBy(testID).build(), null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Order.builder().extraItem(null, 1).build();
+			Order.builder().createdBy(testID).items(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Order.builder().extraItem("", null).build();
+			Order.builder().createdBy(testID).extraItem(null, 1).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Order.builder().extraItems(null).build();
+			Order.builder().createdBy(testID).extraItem("", null).build();
+			fail("Should have failed with an IllegalArgumentException.");
+		} catch (IllegalArgumentException e) {
+			// then
+		}
+		// when
+		try {
+			Order.builder().createdBy(testID).extraItems(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then

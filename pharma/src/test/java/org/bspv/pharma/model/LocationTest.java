@@ -11,13 +11,15 @@ import java.util.UUID;
 import org.junit.Test;
 
 public class LocationTest {
+	
+	private final static UUID testID = UUID.randomUUID();
 
 	@Test
 	public void minimalBuildingTest() {
 		// given
 		String name = "Location name";
 		// when
-		Location location = Location.builder().name(name).build();
+		Location location = Location.builder().name(name).createdBy(testID).build();
 		// then
 		assertEquals("Name of the location should be the given name.", name, location.getName());
 		assertNotNull(location.getId());
@@ -39,7 +41,7 @@ public class LocationTest {
 		LocalDateTime createdDate = LocalDateTime.now();
 		LocalDateTime obsoleteDate = LocalDateTime.now();
 		// when
-		Location location = Location.builder().name(name).id(id).version(version).code(code).description(description)
+		Location location = Location.builder().name(name).createdBy(testID).id(id).version(version).code(code).description(description)
 				.createdDate(createdDate).obsoleteDate(obsoleteDate).build();
 		// then
 		assertEquals("Name of the location should be the given name.", name, location.getName());
@@ -56,7 +58,7 @@ public class LocationTest {
 		// given
 		String name = "Location name";
 		// when
-		Location location = Location.builder().name(name).build();
+		Location location = Location.builder().name(name).createdBy(testID).build();
 		Location locationCopy = location.toBuilder().build();
 		// then
 		assertEquals(locationCopy, location);
@@ -75,7 +77,7 @@ public class LocationTest {
 		String name = null;
 		// when
 		try {
-			Location.builder().name(name).build();
+			Location.builder().name(name).createdBy(testID).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
@@ -88,35 +90,35 @@ public class LocationTest {
 		String name = "Location name";
 		// when
 		try {
-			Location.builder().name(name).id(null).build();
+			Location.builder().name(name).createdBy(testID).id(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Location.builder().name(name).version(null).build();
+			Location.builder().name(name).createdBy(testID).version(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Location.builder().name(name).code(null).build();
+			Location.builder().name(name).createdBy(testID).code(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Location.builder().name(name).description(null).build();
+			Location.builder().name(name).createdBy(testID).description(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Location.builder().name(name).createdDate(null).build();
+			Location.builder().name(name).createdBy(testID).createdDate(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then

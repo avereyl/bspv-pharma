@@ -16,14 +16,16 @@ import org.bspv.pharma.model.AdditionalDetails.DetailsType;
 import org.junit.Test;
 
 public class StockPositionTest {
+	
+	private static final UUID testID = UUID.randomUUID();
 
 	@Test
 	public void minimalBuildingTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		// when
-		StockPosition position = StockPosition.builder().location(location).goods(goods).build();
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).build();
 		// then
 		Integer defaultValue = new Integer(0);
 		assertEquals(location, position.getLocation());
@@ -39,15 +41,14 @@ public class StockPositionTest {
 		assertNotNull(position.getValueDate());
 		assertNotNull(position.getAdditionalDetails());
 		assertTrue(position.getAdditionalDetails().isEmpty());
-		assertFalse(position.getResponsibleUser().isPresent());
 		assertFalse(position.getLinkedInventory().isPresent());
 	}
 
 	@Test
 	public void maximalBuildingTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		UUID id = UUID.randomUUID();
 		Long version = 1L;
 		LocalDateTime createdDate = LocalDateTime.now();
@@ -56,14 +57,13 @@ public class StockPositionTest {
 		Integer minimum = 5;
 		Integer maximum = 20;
 		Integer optimum = 15;
-		AdditionalDetails additionalDetail = AdditionalDetails.builder().type(DetailsType.MISC).build();
-		UUID responsibleUser = UUID.randomUUID();
+		AdditionalDetails additionalDetail = AdditionalDetails.builder().type(DetailsType.MISC).createdBy(testID).build();
 		// when
 		// @formatter:off
-		StockPosition position = StockPosition.builder().location(location).goods(goods).id(id).version(version).createdDate(createdDate)
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).id(id).version(version).createdDate(createdDate)
 				.valueDate(valueDate).current(current).minimum(minimum).maximum(maximum).optimum(optimum).pending()
 				.computed().checked().additionalDetails().additionalDetails(new HashSet<>())
-				.additionalDetail(additionalDetail).responsibleUser(responsibleUser).build();
+				.additionalDetail(additionalDetail).build();
 		// @formatter:on
 		// then
 		assertEquals(location, position.getLocation());
@@ -79,16 +79,15 @@ public class StockPositionTest {
 		assertEquals(valueDate, position.getValueDate());
 		assertEquals(1, position.getAdditionalDetails().size());
 		assertEquals(additionalDetail, position.getAdditionalDetails().toArray(new AdditionalDetails[0])[0]);
-		assertEquals(responsibleUser, position.getResponsibleUser().get());
 	}
 
 	@Test
 	public void copyBuildingTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		// when
-		StockPosition position = StockPosition.builder().location(location).goods(goods).build();
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).build();
 		StockPosition positionCopy = position.toBuilder().build();
 		// then
 		assertEquals(position, positionCopy);
@@ -104,24 +103,23 @@ public class StockPositionTest {
 		assertEquals(position.getCreatedDate(), positionCopy.getCreatedDate());
 		assertEquals(position.getValueDate(), positionCopy.getValueDate());
 		assertEquals(position.getAdditionalDetails(), positionCopy.getAdditionalDetails());
-		assertEquals(position.getResponsibleUser(), positionCopy.getResponsibleUser());
 	}
 
 	@Test
 	public void nullMandatoryElementBuildingTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		try {
 			// when
-			StockPosition.builder().location(null).goods(goods).build();
+			StockPosition.builder().location(null).goods(goods).createdBy(testID).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			StockPosition.builder().location(location).goods(null).build();
+			StockPosition.builder().location(location).goods(null).createdBy(testID).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
@@ -131,81 +129,81 @@ public class StockPositionTest {
 	@Test
 	public void nullExtraElementBuildingTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		try {
 			// when
-			StockPosition.builder().location(location).goods(goods).id(null).build();
+			StockPosition.builder().location(location).goods(goods).createdBy(testID).id(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			StockPosition.builder().location(location).goods(goods).version(null).build();
+			StockPosition.builder().location(location).goods(goods).createdBy(testID).version(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			StockPosition.builder().location(location).goods(goods).minimum(null).build();
+			StockPosition.builder().location(location).goods(goods).createdBy(testID).minimum(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			StockPosition.builder().location(location).goods(goods).maximum(null).build();
+			StockPosition.builder().location(location).goods(goods).createdBy(testID).maximum(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			StockPosition.builder().location(location).goods(goods).optimum(null).build();
+			StockPosition.builder().location(location).goods(goods).createdBy(testID).optimum(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			StockPosition.builder().location(location).goods(goods).current(null).build();
+			StockPosition.builder().location(location).goods(goods).createdBy(testID).current(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			StockPosition.builder().location(location).goods(goods).type(null).build();
+			StockPosition.builder().location(location).goods(goods).createdBy(testID).type(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			StockPosition.builder().location(location).goods(goods).createdDate(null).build();
+			StockPosition.builder().location(location).goods(goods).createdBy(testID).createdDate(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			StockPosition.builder().location(location).goods(goods).valueDate(null).build();
+			StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			StockPosition.builder().location(location).goods(goods).additionalDetail(null).build();
+			StockPosition.builder().location(location).goods(goods).createdBy(testID).additionalDetail(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			StockPosition.builder().location(location).goods(goods).additionalDetails(null).build();
+			StockPosition.builder().location(location).goods(goods).createdBy(testID).additionalDetails(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
@@ -215,11 +213,11 @@ public class StockPositionTest {
 	@Test
 	public void mayMovementBeAppliedTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
-		StockPosition position = StockPosition.builder().location(location).goods(goods).build();
-		Movement movement1 = Movement.builder().of(goods).quantity(0).from(location).build();
-		Movement movement2 = Movement.builder().of(goods).quantity(1).from(location).build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).build();
+		Movement movement1 = Movement.builder().of(goods).quantity(0).from(location).createdBy(testID).build();
+		Movement movement2 = Movement.builder().of(goods).quantity(1).from(location).createdBy(testID).build();
 		// when
 		boolean b1 = position.mayMovementBeApplied(movement1);
 		boolean b2 = position.mayMovementBeApplied(movement2);
@@ -231,11 +229,11 @@ public class StockPositionTest {
 	@Test
 	public void canMovementBeAppliedImmediatelyTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		LocalDateTime now = LocalDateTime.now();
-		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(1).build();
-		Movement movement1 = Movement.builder().of(goods).quantity(1).from(location).valueDate(now.plusMinutes(1)).build();
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(now).current(1).build();
+		Movement movement1 = Movement.builder().of(goods).quantity(1).from(location).createdBy(testID).valueDate(now.plusMinutes(1)).build();
 		Movement movement2 = movement1.toBuilder().quantity(2).build();
 		Movement movement3 = movement1.toBuilder().valueDate(now.minusMinutes(1)).build();
 		// when
@@ -252,12 +250,12 @@ public class StockPositionTest {
 	@Test
 	public void computeNewPositionSuccessfullyFromOneMovementTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		LocalDateTime now = LocalDateTime.now();
-		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(1)
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(now).current(1)
 				.build();
-		Movement movement = Movement.builder().of(goods).quantity(1).from(location).valueDate(now.plusMinutes(1)).build();
+		Movement movement = Movement.builder().of(goods).quantity(1).from(location).createdBy(testID).valueDate(now.plusMinutes(1)).build();
 		// when
 		StockPosition newPosition = position.computeNewPosition(movement);
 		// then
@@ -266,12 +264,12 @@ public class StockPositionTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void computeNewPositionWithFailureFromOneMovementTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		LocalDateTime now = LocalDateTime.now();
-		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(1)
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(now).current(1)
 				.build();
-		Movement movement = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();
+		Movement movement = Movement.builder().of(goods).quantity(2).from(location).createdBy(testID).valueDate(now.plusMinutes(1)).build();
 		// when
 		position.computeNewPosition(movement);
 		// then
@@ -280,13 +278,13 @@ public class StockPositionTest {
 	@Test
 	public void computeNewPositionFromSeveralMovementsSuccessfullyTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		LocalDateTime now = LocalDateTime.now();
 		Integer start = 10;
-		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start).build();
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(now).current(start).build();
 		List<Movement> movements = new ArrayList<>();
-		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();//expect 8
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).createdBy(testID).valueDate(now.plusMinutes(1)).build();//expect 8
 		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(3).build();//expect 5
 		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(location).quantity(8).build();//expect 13
 		Movement m3 = m2.toBuilder().valueDate(now.plusMinutes(4)).quantity(3).build();//expect 16
@@ -305,13 +303,13 @@ public class StockPositionTest {
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void computeNewPositionFromSeveralMovementsWithFailure01Test() {
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		LocalDateTime now = LocalDateTime.now();
 		Integer start = 10;
-		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start).build();
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(now).current(start).build();
 		List<Movement> movements = new ArrayList<>();
-		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();//expect 8
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).createdBy(testID).valueDate(now.plusMinutes(1)).build();//expect 8
 		Movement m4 = m0.toBuilder().valueDate(now.plusMinutes(1)).quantity(10).build();//expect failure
 		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(3).build();
 		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(location).quantity(8).build();
@@ -329,15 +327,15 @@ public class StockPositionTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void computeNewPositionFromSeveralMovementsWithFailure02Test() {
 		// given
-		Location location = Location.builder().name("").build();
-		Location otherLocation = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Location otherLocation = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		LocalDateTime now = LocalDateTime.now();
 		Integer start = 10;
-		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start)
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(now).current(start)
 				.build();
 		List<Movement> movements = new ArrayList<>();
-		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();// expect 8
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).createdBy(testID).valueDate(now.plusMinutes(1)).build();// expect 8
 		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(3).build();// expect 5
 		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(otherLocation).quantity(8).build();// failure
 		Movement m3 = m2.toBuilder().valueDate(now.plusMinutes(4)).quantity(3).build();
@@ -356,12 +354,12 @@ public class StockPositionTest {
 	@Test
 	public void computeNewPositionSilentlySuccessfullyFromOneMovementTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		LocalDateTime now = LocalDateTime.now();
-		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(1)
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(now).current(1)
 				.build();
-		Movement movement = Movement.builder().of(goods).quantity(1).from(location).valueDate(now.plusMinutes(1)).build();
+		Movement movement = Movement.builder().of(goods).quantity(1).from(location).createdBy(testID).valueDate(now.plusMinutes(1)).build();
 		// when
 		StockPosition newPosition = position.computeNewPositionSilently(movement);
 		// then
@@ -371,12 +369,12 @@ public class StockPositionTest {
 	@Test
 	public void computeNewPositionSilentlyWithFailureFromOneMovementTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		LocalDateTime now = LocalDateTime.now();
-		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(1)
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(now).current(1)
 				.build();
-		Movement movement = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();
+		Movement movement = Movement.builder().of(goods).quantity(2).from(location).createdBy(testID).valueDate(now.plusMinutes(1)).build();
 		// when
 		StockPosition newPosition = position.computeNewPositionSilently(movement);
 		// then
@@ -386,13 +384,13 @@ public class StockPositionTest {
 	@Test
 	public void computeNewPositionSilentlyFromSeveralMovementsSuccessfullyTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		LocalDateTime now = LocalDateTime.now();
 		Integer start = 10;
-		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start).build();
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(now).current(start).build();
 		List<Movement> movements = new ArrayList<>();
-		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();//expect 8
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).createdBy(testID).valueDate(now.plusMinutes(1)).build();//expect 8
 		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(3).build();//expect 5
 		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(location).quantity(8).build();//expect 13
 		Movement m3 = m2.toBuilder().valueDate(now.plusMinutes(4)).quantity(3).build();//expect 16
@@ -411,15 +409,15 @@ public class StockPositionTest {
 	@Test
 	public void computeNewPositionSilentlyFromSeveralMovementsWithFailureIgnoredTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Location otherLocation = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Location otherLocation = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		LocalDateTime now = LocalDateTime.now();
 		Integer start = 10;
-		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start)
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(now).current(start)
 				.build();
 		List<Movement> movements = new ArrayList<>();
-		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();// expect 8
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).createdBy(testID).valueDate(now.plusMinutes(1)).build();// expect 8
 		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(3).build();// expect 5
 		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(otherLocation).quantity(8).build();// ignored
 		Movement m3 = m0.toBuilder().valueDate(now.plusMinutes(4)).to(location).quantity(3).build();// expect 8
@@ -439,15 +437,15 @@ public class StockPositionTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void computeNewPositionSilentlyFromSeveralMovementsWithFailureTest() {
 		// given
-		Location location = Location.builder().name("").build();
-		Location otherLocation = Location.builder().name("").build();
-		Goods goods = Goods.builder().name("").build();
+		Location location = Location.builder().name("").createdBy(testID).build();
+		Location otherLocation = Location.builder().name("").createdBy(testID).build();
+		Goods goods = Goods.builder().name("").createdBy(testID).build();
 		LocalDateTime now = LocalDateTime.now();
 		Integer start = 10;
-		StockPosition position = StockPosition.builder().location(location).goods(goods).valueDate(now).current(start)
+		StockPosition position = StockPosition.builder().location(location).goods(goods).createdBy(testID).valueDate(now).current(start)
 				.build();
 		List<Movement> movements = new ArrayList<>();
-		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).valueDate(now.plusMinutes(1)).build();// expect 8
+		Movement m0 = Movement.builder().of(goods).quantity(2).from(location).createdBy(testID).valueDate(now.plusMinutes(1)).build();// expect 8
 		Movement m1 = m0.toBuilder().valueDate(now.plusMinutes(2)).quantity(9).build();// failure
 		Movement m2 = m0.toBuilder().valueDate(now.plusMinutes(3)).to(otherLocation).quantity(8).build();// ignored
 		Movement m3 = m0.toBuilder().valueDate(now.plusMinutes(4)).to(location).quantity(3).build();

@@ -12,12 +12,13 @@ import org.junit.Test;
 
 public class AdditionalDetailsTest {
 
+	private final static UUID testID = UUID.randomUUID();
 
 	@Test
 	public void minimalBuildingTest() {
 		//given
 		//when
-		AdditionalDetails details = AdditionalDetails.builder().type(DetailsType.MISC).build();
+		AdditionalDetails details = AdditionalDetails.builder().type(DetailsType.MISC).createdBy(testID).build();
 		//then
 		assertEquals("Key of the tag should be the given key.", DetailsType.MISC, details.getType());
 		assertEquals("Empty value should be found", "", details.getValue());
@@ -41,6 +42,7 @@ public class AdditionalDetailsTest {
 		// @formatter:off
 		AdditionalDetails details = AdditionalDetails.builder()
 				.type(type)
+				.createdBy(testID)
 				.id(id)
 				.value(value)
 				.valueDate(valueDate)
@@ -70,6 +72,7 @@ public class AdditionalDetailsTest {
 		// @formatter:off
 		AdditionalDetails details = AdditionalDetails.builder()
 				.type(type)
+				.createdBy(testID)
 				.id(id)
 				.value(value)
 				.valueDate(valueDate)
@@ -92,42 +95,42 @@ public class AdditionalDetailsTest {
 	public void missingArgumlentsBuildingTest() {
 		try {
 			// when
-			AdditionalDetails.builder().type(null).build();
+			AdditionalDetails.builder().type(null).createdBy(testID).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).id(null).build();
+			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).createdBy(testID).id(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).value(null).build();
+			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).createdBy(testID).value(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).valueDate(null).build();
+			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).createdBy(testID).valueDate(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).validFrom(null).build();
+			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).createdBy(testID).validFrom(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		try {
 			// when
-			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).validUntil(null).build();
+			AdditionalDetails.builder().type(DetailsType.EXPIRY_DATE).createdBy(testID).validUntil(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then

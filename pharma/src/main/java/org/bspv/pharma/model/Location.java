@@ -22,25 +22,61 @@ public final class Location implements Serializable {
 	 */
 	private static final long serialVersionUID = 4950494554646408104L;
 
+	@Getter
+	private UUID id;
+	@Getter
+	private Long version;
+	@Getter
+	private UUID createdBy;
+	@Getter
+	private LocalDateTime createdDate;
+
+	private UUID lastModifiedBy;// might be null
+
+	private LocalDateTime lastModifiedDate;// might be null
+
+	@Getter
+	private String code;
+	@Getter
+	private String name;
+	@Getter
+	private String description;
+
+	private LocalDateTime obsoleteDate;// might be null
+
 	private Location() {
 		// use builder instead
 	}
 
 	public static interface LocationNameBuilder {
-		LocationBuilder name(@NonNull String name);
+		LocationCreatedByBuilder name(@NonNull String name);
+	}
+
+	public static interface LocationCreatedByBuilder {
+		LocationBuilder createdBy(@NonNull UUID createdBy);
 	}
 
 	public static interface LocationBuilder {
 		LocationBuilder id(@NonNull final UUID id);
+
 		LocationBuilder version(@NonNull final Long version);
+
+		LocationBuilder lastModifiedBy(UUID uuid);
+
+		LocationBuilder lastModifiedDate(LocalDateTime lastUpdatedDate);
+
 		LocationBuilder code(@NonNull final String code);
+
 		LocationBuilder description(@NonNull final String description);
+
 		LocationBuilder createdDate(@NonNull final LocalDateTime createdDate);
+
 		LocationBuilder obsoleteDate(final LocalDateTime obsoleteDate);
+
 		Location build();
 	}
 
-	public static final class Builder implements LocationNameBuilder, LocationBuilder {
+	public static final class Builder implements LocationNameBuilder, LocationCreatedByBuilder, LocationBuilder {
 
 		private final List<Consumer<Location>> operations = new ArrayList<>();
 
@@ -49,6 +85,7 @@ public final class Location implements Serializable {
 			operations.add(l -> l.id = id);
 			return this;
 		}
+
 		@Override
 		public Builder version(@NonNull final Long version) {
 			operations.add(l -> l.version = version);
@@ -64,6 +101,24 @@ public final class Location implements Serializable {
 		@Override
 		public Builder description(@NonNull final String description) {
 			operations.add(l -> l.description = description);
+			return this;
+		}
+
+		@Override
+		public Builder createdBy(@NonNull UUID createdBy) {
+			operations.add(l -> l.createdBy = createdBy);
+			return this;
+		}
+
+		@Override
+		public Builder lastModifiedBy(UUID lastModifiedBy) {
+			operations.add(g -> g.lastModifiedBy = lastModifiedBy);
+			return this;
+		}
+
+		@Override
+		public Builder lastModifiedDate(LocalDateTime lastModifiedDate) {
+			operations.add(g -> g.lastModifiedDate = lastModifiedDate);
 			return this;
 		}
 
@@ -99,32 +154,26 @@ public final class Location implements Serializable {
 
 		private Builder clone(Location location) {
 			this.id(location.id);
+			this.createdBy(location.createdBy);
+			this.createdDate(location.createdDate);
+			this.lastModifiedBy(location.lastModifiedBy);
+			this.lastModifiedDate(location.lastModifiedDate);
 			this.version(location.version);
 			this.code(location.code);
 			this.name(location.name);
 			this.description(location.description);
-			this.createdDate(location.createdDate);
 			this.obsoleteDate(location.obsoleteDate);
 			return this;
 		}
 	}
 
-	@Getter
-	private UUID id;
-	/**
-	 * Version number for optimistic locking.
-	 */
-	@Getter
-	private Long version;
-	@Getter
-	private String code;
-	@Getter
-	private String name;
-	@Getter
-	private String description;
-	@Getter
-	private LocalDateTime createdDate;
-	private LocalDateTime obsoleteDate;
+	public Optional<UUID> getLastModifiedBy() {
+		return Optional.ofNullable(this.lastModifiedBy);
+	}
+
+	public Optional<LocalDateTime> getLastModifiedDate() {
+		return Optional.ofNullable(this.lastModifiedDate);
+	}
 
 	public Optional<LocalDateTime> getObsoleteDate() {
 		return Optional.ofNullable(this.obsoleteDate);

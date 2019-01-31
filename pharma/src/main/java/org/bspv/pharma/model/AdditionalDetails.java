@@ -36,6 +36,10 @@ public final class AdditionalDetails implements Serializable {
 	@Getter
 	private UUID id;
 	@Getter
+	private UUID createdBy;
+	@Getter
+	private LocalDateTime createdDate;
+	@Getter
 	private LocalDateTime validityStartDate;
 	@Getter
 	private LocalDateTime validityEndDate;
@@ -55,11 +59,17 @@ public final class AdditionalDetails implements Serializable {
 	}
 
 	public static interface AdditionalDetailsTypeBuilder {
-		AdditionalDetailsBuilder type(@NonNull final DetailsType type);
+		AdditionalDetailsCreatedByBuilder type(@NonNull final DetailsType type);
+	}
+
+	public static interface AdditionalDetailsCreatedByBuilder {
+		AdditionalDetailsBuilder createdBy(@NonNull final UUID createdBy);
 	}
 
 	public static interface AdditionalDetailsBuilder {
 		AdditionalDetailsBuilder id(@NonNull final UUID id);
+
+		AdditionalDetailsBuilder createdDate(@NonNull final LocalDateTime createdDate);
 
 		AdditionalDetailsBuilder value(@NonNull final String value);
 
@@ -72,49 +82,67 @@ public final class AdditionalDetails implements Serializable {
 		AdditionalDetails build();
 	}
 
-	public static class Builder implements AdditionalDetailsTypeBuilder, AdditionalDetailsBuilder {
+	public static class Builder
+			implements AdditionalDetailsTypeBuilder, AdditionalDetailsCreatedByBuilder, AdditionalDetailsBuilder {
 
 		private final List<Consumer<AdditionalDetails>> operations = new ArrayList<>();
 
 		private Builder() {
 		}
 
+		@Override
 		public Builder type(@NonNull final DetailsType type) {
 			operations.add(ad -> ad.type = type);
 			return this;
 		}
 
 		@Override
-		public AdditionalDetailsBuilder id(@NonNull UUID id) {
+		public Builder id(@NonNull UUID id) {
 			operations.add(ad -> ad.id = id);
 			return this;
 		}
 
 		@Override
-		public AdditionalDetailsBuilder validFrom(@NonNull LocalDateTime validityStartDate) {
+		public Builder validFrom(@NonNull LocalDateTime validityStartDate) {
 			operations.add(ad -> ad.validityStartDate = validityStartDate);
 			return this;
 		}
 
 		@Override
-		public AdditionalDetailsBuilder validUntil(@NonNull LocalDateTime validityEndDate) {
+		public Builder validUntil(@NonNull LocalDateTime validityEndDate) {
 			operations.add(ad -> ad.validityEndDate = validityEndDate);
 			return this;
 		}
 
+		@Override
 		public Builder value(@NonNull final String value) {
 			operations.add(ad -> ad.value = value);
 			return this;
 		}
 
+		@Override
 		public Builder valueDate(@NonNull final LocalDateTime valueDate) {
 			operations.add(ad -> ad.valueDate = valueDate);
+			return this;
+		}
+
+		@Override
+		public AdditionalDetailsBuilder createdDate(@NonNull LocalDateTime createdDate) {
+			operations.add(ad -> ad.createdDate = createdDate);
+			return this;
+		}
+
+		@Override
+		public AdditionalDetailsBuilder createdBy(@NonNull UUID createdBy) {
+			operations.add(ad -> ad.createdBy = createdBy);
 			return this;
 		}
 
 		private Builder clone(AdditionalDetails additionalDetails) {
 			this.id(additionalDetails.id);
 			this.type(additionalDetails.type);
+			this.createdBy(additionalDetails.createdBy);
+			this.createdDate(additionalDetails.createdDate);
 			this.value(additionalDetails.value);
 			this.valueDate(additionalDetails.valueDate);
 			this.validFrom(additionalDetails.validityStartDate);
@@ -122,13 +150,17 @@ public final class AdditionalDetails implements Serializable {
 			return this;
 		}
 
+		@Override
 		public AdditionalDetails build() {
 			AdditionalDetails additionalDetails = new AdditionalDetails();
 			this.operations.forEach(c -> c.accept(additionalDetails));
 			// handle default values
 			additionalDetails.id = additionalDetails.id == null ? UUID.randomUUID() : additionalDetails.id;
 			additionalDetails.value = additionalDetails.value == null ? "" : additionalDetails.value;
-			additionalDetails.validityStartDate = additionalDetails.validityStartDate == null ? LocalDateTime.now()
+			LocalDateTime now = LocalDateTime.now();
+
+			additionalDetails.createdDate = additionalDetails.createdDate == null ? now : additionalDetails.createdDate;
+			additionalDetails.validityStartDate = additionalDetails.validityStartDate == null ? now
 					: additionalDetails.validityStartDate;
 			additionalDetails.validityEndDate = additionalDetails.validityEndDate == null ? LocalDateTime.MAX
 					: additionalDetails.validityEndDate;

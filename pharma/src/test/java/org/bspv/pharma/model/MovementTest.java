@@ -13,17 +13,19 @@ import org.bspv.pharma.model.Movement.MovementReason;
 import org.junit.Test;
 
 public class MovementTest {
+	
+	private final static UUID testID = UUID.randomUUID();
 
 	@Test
 	public void minimalBuildingTest() {
 
 		// given
 		Integer qty = 10;
-		Goods goods = Goods.builder().name("goods").build();
-		Location location = Location.builder().name("location").build();
+		Goods goods = Goods.builder().name("goods").createdBy(testID).build();
+		Location location = Location.builder().name("location").createdBy(testID).build();
 
 		// when
-		Movement movement = Movement.builder().of(goods).quantity(qty).from(location).build();
+		Movement movement = Movement.builder().of(goods).quantity(qty).from(location).createdBy(testID).build();
 
 		// then
 		assertNotNull("Id should not be null!", movement.getId());
@@ -42,16 +44,16 @@ public class MovementTest {
 	public void maximalBuildingTest() {
 
 		// given
-		Goods goods = Goods.builder().name("Goods").build();
+		Goods goods = Goods.builder().name("Goods").createdBy(testID).build();
 		Integer qty = 10;
-		Location location = Location.builder().name("location").build();
+		Location location = Location.builder().name("location").createdBy(testID).build();
 		UUID id = UUID.randomUUID();
 		Long version = 1L;
 		MovementReason reason = MovementReason.CONSUMPTION;
 		LocalDateTime createdDate = LocalDateTime.now();
 		LocalDateTime valueDate = LocalDateTime.now();
-		Movement linkedMovement = Movement.builder().of(goods).quantity(qty).from(location).build();
-		Order linkedOrder = Order.builder().build();
+		Movement linkedMovement = Movement.builder().of(goods).quantity(qty).from(location).createdBy(testID).build();
+		Order linkedOrder = Order.builder().createdBy(testID).build();
 		UUID responsibleUser = UUID.randomUUID();
 
 		// when
@@ -60,6 +62,7 @@ public class MovementTest {
 				.of(goods)
 				.quantity(qty)
 				.from(location)
+				.createdBy(testID)
 				.id(id)
 				.version(version)
 				.reason(reason)
@@ -91,11 +94,11 @@ public class MovementTest {
 	public void copyBuildingTest() {
 
 		Integer qty = 10;
-		Goods goods = Goods.builder().name("goods").build();
-		Location location = Location.builder().name("location").build();
+		Goods goods = Goods.builder().name("goods").createdBy(testID).build();
+		Location location = Location.builder().name("location").createdBy(testID).build();
 
 		// when
-		Movement movement = Movement.builder().of(goods).quantity(qty).to(location).build();
+		Movement movement = Movement.builder().of(goods).quantity(qty).to(location).createdBy(testID).build();
 		Movement movementCopy = movement.toBuilder().build();
 
 		// then
@@ -118,33 +121,33 @@ public class MovementTest {
 
 		// given
 		Integer qty = 10;
-		Goods goods = Goods.builder().name("goods").build();
-		Location location = Location.builder().name("location").build();
+		Goods goods = Goods.builder().name("goods").createdBy(testID).build();
+		Location location = Location.builder().name("location").createdBy(testID).build();
 
 		// when
 		try {
-			Movement.builder().of(goods).quantity(qty).from(null).build();
+			Movement.builder().of(goods).quantity(qty).from(null).createdBy(testID).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Movement.builder().of(goods).quantity(qty).to(null).build();
+			Movement.builder().of(goods).quantity(qty).to(null).createdBy(testID).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Movement.builder().of(goods).quantity(null).from(location).build();
+			Movement.builder().of(goods).quantity(null).from(location).createdBy(testID).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Movement.builder().of(null).quantity(qty).from(location).build();
+			Movement.builder().of(null).quantity(qty).from(location).createdBy(testID).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
@@ -156,40 +159,40 @@ public class MovementTest {
 		
 		// given
 		Integer qty = 10;
-		Goods goods = Goods.builder().name("goods").build();
-		Location location = Location.builder().name("location").build();
+		Goods goods = Goods.builder().name("goods").createdBy(testID).build();
+		Location location = Location.builder().name("location").createdBy(testID).build();
 		
 		// when
 		try {
-			Movement.builder().of(goods).quantity(qty).from(location).id(null).build();
+			Movement.builder().of(goods).quantity(qty).from(location).createdBy(testID).id(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Movement.builder().of(goods).quantity(qty).from(location).version(null).build();
+			Movement.builder().of(goods).quantity(qty).from(location).createdBy(testID).version(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Movement.builder().of(goods).quantity(qty).from(location).reason(null).build();
+			Movement.builder().of(goods).quantity(qty).from(location).createdBy(testID).reason(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Movement.builder().of(goods).quantity(qty).from(location).createdDate(null).build();
+			Movement.builder().of(goods).quantity(qty).from(location).createdBy(testID).createdDate(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then
 		}
 		// when
 		try {
-			Movement.builder().of(goods).quantity(qty).from(location).valueDate(null).build();
+			Movement.builder().of(goods).quantity(qty).from(location).createdBy(testID).valueDate(null).build();
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
 			// then

@@ -13,12 +13,14 @@ import java.util.UUID;
 import org.junit.Test;
 
 public class InventoryTest {
+	
+	private final static UUID testID = UUID.randomUUID();
 
 	@Test
 	public void minimalBuildingTest() {
 		// given
 		// when
-		Inventory inventory = Inventory.builder().build();
+		Inventory inventory = Inventory.builder().createdBy(testID).build();
 		// then
 		assertNotNull(inventory.getId());
 		assertNotNull(inventory.getVersion());
@@ -26,7 +28,6 @@ public class InventoryTest {
 		assertNotNull(inventory.getComment());
 		assertNotNull(inventory.getPositions());
 		assertFalse(inventory.getClosedDate().isPresent());
-		assertFalse(inventory.getResponsibleUser().isPresent());
 		assertTrue(inventory.getPositions().isEmpty());
 		assertFalse(inventory.isClosed());
 	}
@@ -38,16 +39,19 @@ public class InventoryTest {
 		Long version = 1L;
 		LocalDateTime createdDate = LocalDateTime.now();
 		String comment = "comment";
-		Location location = Location.builder().name("location").build();
-		Goods goods = Goods.builder().name("goods").build();
-		StockPosition position = StockPosition.builder().location(location).goods(goods).build();
+		Location location = Location.builder().name("location").createdBy(testID).build();
+		Goods goods = Goods.builder().name("goods").createdBy(testID).build();
+		StockPosition position = StockPosition.builder()
+				.location(location)
+				.goods(goods)
+				.createdBy(testID)
+				.build();
 		LocalDateTime closedDate = LocalDateTime.now();
-		UUID responsibleUser = UUID.randomUUID();
 
 		// when
 		// @formatter:off
-		Inventory inventory = Inventory.builder().id(id).version(version).createdDate(createdDate).comment(comment).positions()
-				.positions(new HashSet<>()).position(position).responsibleUser(responsibleUser).closedDate(closedDate)
+		Inventory inventory = Inventory.builder().createdBy(testID).id(id).version(version).createdDate(createdDate).comment(comment).positions()
+				.positions(new HashSet<>()).position(position).closedDate(closedDate)
 				.build();
 		// @formatter:on
 		// then
@@ -58,14 +62,14 @@ public class InventoryTest {
 		assertEquals(1, inventory.getPositions().size());
 		assertEquals(position, inventory.getPositions().toArray(new StockPosition[0])[0]);
 		assertEquals(closedDate, inventory.getClosedDate().get());
-		assertEquals(responsibleUser, inventory.getResponsibleUser().get());
+		assertEquals(testID, inventory.getCreatedBy());
 	}
 
 	@Test
 	public void copyBuildingTest() {
 		// given
 		// when
-		Inventory inventory = Inventory.builder().build();
+		Inventory inventory = Inventory.builder().createdBy(testID).build();
 		Inventory inventoryCopy = inventory.toBuilder().build();
 		// then
 		assertEquals(inventory, inventoryCopy);
@@ -75,7 +79,6 @@ public class InventoryTest {
 		assertEquals(inventory.getComment(), inventoryCopy.getComment());
 		assertEquals(inventory.getPositions(), inventoryCopy.getPositions());
 		assertEquals(inventory.getClosedDate(), inventoryCopy.getClosedDate());
-		assertEquals(inventory.getResponsibleUser(), inventoryCopy.getResponsibleUser());
 	}
 
 	@Test
@@ -83,7 +86,7 @@ public class InventoryTest {
 		// given
 		// when
 		try {
-			Inventory.builder().id(null).build();
+			Inventory.builder().createdBy(testID).id(null).build();
 			// then
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
@@ -91,7 +94,7 @@ public class InventoryTest {
 		}
 		// when
 		try {
-			Inventory.builder().version(null).build();
+			Inventory.builder().createdBy(testID).version(null).build();
 			// then
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
@@ -99,7 +102,7 @@ public class InventoryTest {
 		}
 		// when
 		try {
-			Inventory.builder().createdDate(null).build();
+			Inventory.builder().createdBy(testID).createdDate(null).build();
 			// then
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
@@ -107,7 +110,7 @@ public class InventoryTest {
 		}
 		// when
 		try {
-			Inventory.builder().comment(null).build();
+			Inventory.builder().createdBy(testID).comment(null).build();
 			// then
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
@@ -115,7 +118,7 @@ public class InventoryTest {
 		}
 		// when
 		try {
-			Inventory.builder().position(null).build();
+			Inventory.builder().createdBy(testID).position(null).build();
 			// then
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
@@ -123,7 +126,7 @@ public class InventoryTest {
 		}
 		// when
 		try {
-			Inventory.builder().positions(null).build();
+			Inventory.builder().createdBy(testID).positions(null).build();
 			// then
 			fail("Should have failed with an IllegalArgumentException.");
 		} catch (IllegalArgumentException e) {
