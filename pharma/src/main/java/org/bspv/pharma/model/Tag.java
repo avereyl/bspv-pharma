@@ -23,8 +23,8 @@ public final class Tag implements Serializable {
 	 */
 	private static final long serialVersionUID = 5588678864664858346L;
 
-	public static final Supplier<Tag.TagCreatedByBuilder> EXPIRY_TAG = () -> Tag.builder().key("expires");
-	public static final Supplier<Tag.TagCreatedByBuilder> BATTERY_TAG = () -> Tag.builder().key("battery");
+	public static final Supplier<Tag.TagCreatedByBuilder> EXPIRY_TAG_BUILDER_FACTORY = () -> Tag.builder().key("expires");
+	public static final Supplier<Tag.TagCreatedByBuilder> BATTERY_TAG_BUILDER_FACTORY = () -> Tag.builder().key("battery");
 
 	@Getter
 	private UUID createdBy;

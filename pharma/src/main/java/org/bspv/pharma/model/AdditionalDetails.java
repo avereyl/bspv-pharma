@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,6 +29,13 @@ public final class AdditionalDetails implements Serializable {
 	 * Generated Serial UID.
 	 */
 	private static final long serialVersionUID = -4443763633078637155L;
+
+	public static final Supplier<AdditionalDetails.AdditionalDetailsCreatedByBuilder> EXPIRY_DATE_DETAILS_BUILDER_FACTORY = () -> AdditionalDetails
+			.builder().type(DetailsType.EXPIRY_DATE);
+	public static final Supplier<AdditionalDetails.AdditionalDetailsCreatedByBuilder> COMMENT_DETAILS_BUILDER_FACTORY = () -> AdditionalDetails
+			.builder().type(DetailsType.COMMENT);
+	public static final Supplier<AdditionalDetails.AdditionalDetailsCreatedByBuilder> MISC_DETAILS_BUILDER_FACTORY = () -> AdditionalDetails
+			.builder().type(DetailsType.MISC);
 
 	public enum DetailsType {
 		EXPIRY_DATE, COMMENT, MISC

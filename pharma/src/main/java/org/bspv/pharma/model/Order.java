@@ -231,6 +231,10 @@ public final class Order implements Serializable {
 	public Map<String, Integer> getExtraItems() {
 		return Collections.unmodifiableMap(this.extraItems);
 	}
+
+	public Set<OrderEvent> getEvents() {
+		return Collections.unmodifiableSet(this.events);
+	}
 	
 	
 }

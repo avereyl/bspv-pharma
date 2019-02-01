@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -20,14 +21,20 @@ public final class OrderEvent implements Serializable {
 	 * Generated Serial UID.
 	 */
 	private static final long serialVersionUID = 7511819088515918000L;
-	
+
+	public static final Supplier<OrderEvent.OrderEventCreatedByBuilder> PRINTING_EVENT_BUILDER_FACTORY = () -> OrderEvent
+			.builder().type(OrderEventType.PRINTING);
+	public static final Supplier<OrderEvent.OrderEventCreatedByBuilder> DISPATCH_EVENT_BUILDER_FACTORY = () -> OrderEvent
+			.builder().type(OrderEventType.DISPATCH);
+	public static final Supplier<OrderEvent.OrderEventCreatedByBuilder> RECEPTION_EVENT_BUILDER_FACTORY = () -> OrderEvent
+			.builder().type(OrderEventType.RECEPTION);
+	public static final Supplier<OrderEvent.OrderEventCreatedByBuilder> VALIDATION_EVENT_BUILDER_FACTORY = () -> OrderEvent
+			.builder().type(OrderEventType.VALIDATION);
+
 	public enum OrderEventType {
-		PRINTING,
-		DISPATCH,
-		RECEPTION,
-		VALIDATION
+		PRINTING, DISPATCH, RECEPTION, VALIDATION
 	}
-	
+
 	@Getter
 	private UUID id;
 	@Getter
@@ -48,24 +55,29 @@ public final class OrderEvent implements Serializable {
 	public Builder toBuilder() {
 		return new OrderEvent.Builder().clone(this);
 	}
-	
+
 	public static interface OrderEventTypeBuilder {
 		OrderEventCreatedByBuilder type(@NonNull OrderEventType type);
 	}
+
 	public static interface OrderEventCreatedByBuilder {
 		OrderEventBuilder createdBy(@NonNull UUID id);
 	}
+
 	public static interface OrderEventBuilder {
 		OrderEventBuilder id(@NonNull UUID id);
+
 		OrderEventBuilder createdDate(@NonNull LocalDateTime createdDate);
+
 		OrderEventBuilder createdBy(@NonNull UUID id);
+
 		OrderEvent build();
 	}
 
 	public static class Builder implements OrderEventTypeBuilder, OrderEventCreatedByBuilder, OrderEventBuilder {
-		
+
 		private final List<Consumer<OrderEvent>> operations = new ArrayList<>();
-		
+
 		private Builder() {
 		}
 
@@ -74,13 +86,13 @@ public final class OrderEvent implements Serializable {
 			this.operations.add(o -> o.id = id);
 			return this;
 		}
+
 		@Override
 		public Builder createdDate(@NonNull LocalDateTime createdDate) {
 			this.operations.add(o -> o.createdDate = createdDate);
 			return this;
 		}
-				
-		
+
 		@Override
 		public Builder createdBy(@NonNull UUID createdBy) {
 			this.operations.add(o -> o.createdBy = createdBy);
@@ -88,7 +100,7 @@ public final class OrderEvent implements Serializable {
 		}
 
 		@Override
-		public Builder	 type(@NonNull OrderEventType type) {
+		public Builder type(@NonNull OrderEventType type) {
 			this.operations.add(o -> o.type = type);
 			return this;
 		}
@@ -112,5 +124,4 @@ public final class OrderEvent implements Serializable {
 
 	}
 
-	
 }

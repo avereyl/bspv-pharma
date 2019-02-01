@@ -61,8 +61,8 @@ public class TagTest {
 	public void predefinedBuildingTest() {
 		// given
 		// when
-		Tag batteryTag = Tag.BATTERY_TAG.get().createdBy(testID).build();
-		Tag expiryTag = Tag.EXPIRY_TAG.get().createdBy(testID).build();
+		Tag batteryTag = Tag.BATTERY_TAG_BUILDER_FACTORY.get().createdBy(testID).build();
+		Tag expiryTag = Tag.EXPIRY_TAG_BUILDER_FACTORY.get().createdBy(testID).build();
 		// then
 		assertEquals("Key of the tag should be the given key.", "battery", batteryTag.getKey());
 		assertEquals("Value of the tag should be equal to the given value", "expires", expiryTag.getKey());

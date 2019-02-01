@@ -7,9 +7,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bspv.pharma.model.OrderEvent.OrderEventType;
 import org.junit.Test;
 
 public class OrderTest {
@@ -43,6 +45,7 @@ public class OrderTest {
 		Goods goods = Goods.builder().name("goods").createdBy(testID).build();
 		Integer quantity = 1;
 		Map<String, Integer> extraItems = new HashMap<>();
+		OrderEvent event = OrderEvent.builder().type(OrderEventType.VALIDATION).createdBy(testID).build();
 		// when
 		// @formatter:off
 		Order order = Order.builder()
@@ -58,6 +61,9 @@ public class OrderTest {
 				.extraItems()
 				.extraItems(extraItems)
 				.extraItem("extra items", quantity)
+				.events()
+				.events(new HashSet<>())
+				.event(event)
 				.build();
 		// @formatter:on
 		// then
@@ -71,6 +77,8 @@ public class OrderTest {
 		assertTrue(order.getItems().containsKey(goods));
 		assertEquals(quantity, order.getItems().get(goods));
 		assertEquals(1, order.getExtraItems().size());
+		assertEquals(1, order.getEvents().size());
+		assertEquals(event, order.getEvents().stream().findFirst().get());
 		
 	}
 
