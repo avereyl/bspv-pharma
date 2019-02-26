@@ -23,6 +23,13 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 
+		<!-- default db properties -->
+		<db.url>jdbc:postgresql://localhost:15432/postgres</db.url>
+		<db.inputSchema>public</db.inputSchema>
+		<db.username>postgres</db.username>
+		<db.password>postgres</db.password>
+		<db.flyway.locations>db/migration/postgres</db.flyway.locations>
+
 		<otj-pg-embedded.version>0.13.0</otj-pg-embedded.version>
 		<jacoco-maven-plugin>0.7.7.201606060606</jacoco-maven-plugin>
 
@@ -33,7 +40,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-	
+		<dependency>
+			<groupId>org.springframework.hateoas</groupId>
+			<artifactId>spring-hateoas</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jooq</artifactId>
@@ -69,20 +80,10 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.opentable.components</groupId>
-			<artifactId>otj-pg-embedded</artifactId>
-			<version>${otj-pg-embedded.version}</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -101,6 +102,132 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<!-- current version -->
+				<groupId>fr.avereyl.tools</groupId>
+				<artifactId>postgres-maven-plugin</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<configuration>
+					<port>15432</port>
+				</configuration>
+				<!-- call start and stop -->
+				<executions>
+					<execution>
+						<id>start-postgres</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>start</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>stop-postgres</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<!-- Note that we're executing the Flyway plugin in the "generate-sources" 
+					phase -->
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>migrate</goal>
+						</goals>
+					</execution>
+				</executions>
+
+				<!-- Note that we need to prefix the db/migration path with filesystem: 
+					to prevent Flyway from looking for our migration scripts only on the classpath -->
+				<configuration>
+					<url>${db.url}</url>
+					<user>${db.username}</user>
+					<password>${db.password}</password>
+					<locations>
+						<location>filesystem:src/main/resources/${db.flyway.locations}</location>
+					</locations>
+
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jooq</groupId>
+				<artifactId>jooq-codegen-maven</artifactId>
+
+				<!-- The jOOQ code generation plugin is also executed in the generate-sources 
+					phase, prior to compilation -->
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+
+				<!-- This is a minimal working configuration. See the manual's section 
+					about the code generator for more details -->
+				<configuration>
+					<jdbc>
+						<url>${db.url}</url>
+						<user>${db.username}</user>
+						<password>${db.password}</password>
+					</jdbc>
+					<generator>
+						<database>
+							<includes>.*</includes>
+							<excludes>flyway_schema_history</excludes>
+							<recordVersionFields>VERSION</recordVersionFields>
+							<inputSchema>${db.inputSchema}</inputSchema>
+							<customTypes>
+								<customType>
+									<name>OffsetDateTime</name>
+									<type>java.time.OffsetDateTime</type>
+									<converter>org.bspv.pharma.repository.jooq.converter.OffsetDateTimeConverter</converter>
+								</customType>
+							</customTypes>
+							<forcedTypes>
+								<forcedType>
+									<name>OffsetDateTime</name>
+									<types>TIMESTAMP</types>
+								</forcedType>
+							</forcedTypes>
+						</database>
+						<target>
+							<packageName>org.bspv.pharma.jooq</packageName>
+							<directory>src/generated/java</directory>
+						</target>
+					</generator>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/generated/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

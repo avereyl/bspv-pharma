@@ -65,36 +65,34 @@ CREATE TABLE orders (
 
 DROP TABLE IF EXISTS order_goods;
 CREATE TABLE order_goods (
-	id UUID NOT NULL,
-	order_ UUID NOT NULL,
-	goods UUID NOT NULL,
+	order_id UUID NOT NULL,
+	goods_id UUID NOT NULL,
 	version BIGINT NOT NULL DEFAULT 1,
 	quantity BIGINT NOT NULL DEFAULT 0,
-	PRIMARY KEY (id),
-	CONSTRAINT fk_order_goods__orders FOREIGN KEY(order_) REFERENCES orders(id),
-	CONSTRAINT fk_order_goods__goods FOREIGN KEY(goods) REFERENCES goods(id)
+	PRIMARY KEY (order_id, goods_id),
+	CONSTRAINT fk_order_goods__orders FOREIGN KEY(order_id) REFERENCES orders(id),
+	CONSTRAINT fk_order_goods__goods FOREIGN KEY(goods_id) REFERENCES goods(id)
 );
 
 DROP TABLE IF EXISTS order_extras;
 CREATE TABLE order_extras (
-	id UUID NOT NULL,
-	order_ UUID NOT NULL,
+	order_id UUID NOT NULL,
 	extra VARCHAR(255) NOT NULL,
 	version BIGINT NOT NULL DEFAULT 1,
 	quantity BIGINT NOT NULL DEFAULT 0,
-	PRIMARY KEY (id),
-	CONSTRAINT fk_order_goods__orders FOREIGN KEY(order_) REFERENCES orders(id)
+	PRIMARY KEY (order_id, extra),
+	CONSTRAINT fk_order_goods__orders FOREIGN KEY(order_id) REFERENCES orders(id)
 );
 
 DROP TABLE IF EXISTS order_events;
 CREATE TABLE orders_events (
 	id UUID NOT NULL,
+	order_id UUID NOT NULL,
 	created_by UUID NOT NULL,
 	created_date TIMESTAMP NOT NULL,
-	order_ UUID NOT NULL,
 	event_type VARCHAR(75) NOT NULL,
 	PRIMARY KEY (id),
-	CONSTRAINT fk_order_events__orders FOREIGN KEY(order_) REFERENCES orders(id)
+	CONSTRAINT fk_order_events__orders FOREIGN KEY(order_id) REFERENCES orders(id)
 );
 
 DROP TABLE IF EXISTS tags;
@@ -103,9 +101,9 @@ CREATE TABLE tags (
 	created_date TIMESTAMP NOT NULL,
 	key_ VARCHAR(75) NOT NULL,
 	value_ VARCHAR(255) NOT NULL,
-	goods UUID NOT NULL,
-	PRIMARY KEY (goods, key_),
-	CONSTRAINT fk_tags__goods__1 FOREIGN KEY(goods) REFERENCES goods(id)
+	goods_id UUID NOT NULL,
+	PRIMARY KEY (goods_id, key_),
+	CONSTRAINT fk_tags__goods__1 FOREIGN KEY(goods_id) REFERENCES goods(id)
 );
 
 DROP TABLE IF EXISTS movements;
@@ -113,19 +111,19 @@ CREATE TABLE movements (
 	id UUID NOT NULL,
 	created_by UUID NOT NULL,
 	created_date TIMESTAMP NOT NULL,
-	goods UUID NOT NULL,
-	location UUID NOT NULL,
+	goods_id UUID NOT NULL,
+	location_id UUID NOT NULL,
 	quantity INT NOT NULL DEFAULT 0,
 	reason VARCHAR(50) NOT NULL,
 	value_date TIMESTAMP NOT NULL,
 	responsible_user UUID,
-	linked_movement UUID,
-	linked_order UUID,
+	linked_movement_id UUID,
+	linked_order_id UUID,
 	PRIMARY KEY (id),
-	CONSTRAINT fk_movements__goods__1 FOREIGN KEY(goods) REFERENCES goods(id),
-	CONSTRAINT fk_movements__locations__1 FOREIGN KEY(location) REFERENCES locations(id),
-	CONSTRAINT fk_movements__movements__1 FOREIGN KEY(linked_movement) REFERENCES movements(id),
-	CONSTRAINT fk_movements__orders__1 FOREIGN KEY(linked_order) REFERENCES orders(id)
+	CONSTRAINT fk_movements__goods__1 FOREIGN KEY(goods_id) REFERENCES goods(id),
+	CONSTRAINT fk_movements__locations__1 FOREIGN KEY(location_id) REFERENCES locations(id),
+	CONSTRAINT fk_movements__movements__1 FOREIGN KEY(linked_movement_id) REFERENCES movements(id),
+	CONSTRAINT fk_movements__orders__1 FOREIGN KEY(linked_order_id) REFERENCES orders(id)
 );
 
 DROP TABLE IF EXISTS positions;
@@ -134,34 +132,34 @@ CREATE TABLE positions (
 	version BIGINT NOT NULL DEFAULT 1,
 	created_by UUID NOT NULL,
 	created_date TIMESTAMP NOT NULL,
-	goods UUID NOT NULL,
-	location UUID NOT NULL,
+	goods_id UUID NOT NULL,
+	location_id UUID NOT NULL,
 	minimum INT NOT NULL DEFAULT 0,
 	maximum INT NOT NULL DEFAULT 0,
 	optimum INT NOT NULL DEFAULT 0,
 	current INT NOT NULL DEFAULT 0,
 	type_ VARCHAR(75) NOT NULL,
 	value_date TIMESTAMP NOT NULL,
-	linked_inventory UUID,
+	linked_inventory_id UUID,
 	PRIMARY KEY (id),
-	CONSTRAINT fk_positions__goods__1 FOREIGN KEY(goods) REFERENCES goods(id),
-	CONSTRAINT fk_positions__locations__1 FOREIGN KEY(location) REFERENCES locations(id),
-	CONSTRAINT fk_positions__inventories__1 FOREIGN KEY(linked_inventory) REFERENCES inventories(id)
+	CONSTRAINT fk_positions__goods__1 FOREIGN KEY(goods_id) REFERENCES goods(id),
+	CONSTRAINT fk_positions__locations__1 FOREIGN KEY(location_id) REFERENCES locations(id),
+	CONSTRAINT fk_positions__inventories__1 FOREIGN KEY(linked_inventory_id) REFERENCES inventories(id)
 );
 
 
-DROP TABLE IF EXISTS details;
-CREATE TABLE details (
+DROP TABLE IF EXISTS position_details;
+CREATE TABLE position_details (
 	id UUID NOT NULL,
 	created_by UUID NOT NULL,
 	created_date TIMESTAMP NOT NULL,
-	position UUID NOT NULL,
+	position_id UUID NOT NULL,
 	validity_start_date TIMESTAMP NOT NULL,
 	validity_end_date TIMESTAMP NOT NULL,
 	value_date TIMESTAMP NOT NULL,
 	type_ VARCHAR(75) NOT NULL,
 	value_ VARCHAR(255) NOT NULL,
 	PRIMARY KEY (id),
-	CONSTRAINT fk_details__positions__1 FOREIGN KEY(position) REFERENCES positions(id)
+	CONSTRAINT fk_position_details__positions__1 FOREIGN KEY(position_id) REFERENCES positions(id)
 );
 
