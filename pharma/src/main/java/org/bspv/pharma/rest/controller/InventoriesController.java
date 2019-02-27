@@ -11,29 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bspv.pharma.controller;
+package org.bspv.pharma.rest.controller;
 
-import org.bspv.pharma.model.Goods;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/")
-public class MasterdataController {
+@RequestMapping("/inventories")
+public class InventoriesController {
 
-	@PostMapping(value = "goods/", produces = { "application/hal+json" })
-	public Resource<Goods> add(@RequestBody final Goods goods) {
-		return null;
-	}
-
-	@GetMapping("goods/")
-	public Resources<Goods> findAllGoods(@RequestBody final Goods goods) {
-		return null;
-	}
+    public InventoriesController() {
+        // TODO Auto-generated constructor stub
+    }
 
 }
