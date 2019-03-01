@@ -13,7 +13,7 @@
  */
 package org.bspv.pharma.rest.beans;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,20 +22,20 @@ import javax.validation.constraints.NotBlank;
 
 import org.bspv.pharma.model.Tag;
 import org.bspv.pharma.rest.beans.validation.ValidUUID;
+import org.springframework.hateoas.ResourceSupport;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class GoodsBean {
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true) // rely on super class for equals and hashCode
+public class GoodsResource extends ResourceSupport {
 
-    @ValidUUID
-    private String id;
-    private Long version = 0L;
     @NotBlank
     private String name;
     private String description = "";
 
-    private LocalDateTime deprecatedDate;// might be null
+    private OffsetDateTime deprecatedDate;// might be null
 
     @ValidUUID(nullable = true)
     private String defaultLocationId;

@@ -1,10 +1,10 @@
 /**
- * 
+ *
  */
 package org.bspv.pharma.model;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -20,7 +20,7 @@ import lombok.NonNull;
 import lombok.ToString;
 
 /**
- * 
+ *
  * @author guillaume
  *
  */
@@ -28,261 +28,290 @@ import lombok.ToString;
 @EqualsAndHashCode(of = { "id" })
 public final class Goods implements Serializable {
 
-	/**
-	 * Generated Serial UID.
-	 */
-	private static final long serialVersionUID = -2516920878572437352L;
-	
-	private Goods() {//use builder instead
-	}
+    /**
+     * Generated Serial UID.
+     */
+    private static final long serialVersionUID = -2516920878572437352L;
 
-	/**
-	 * Identifier of this piece of goods.
-	 */
-	@Getter
-	private UUID id;
-	/**
-	 * Version number for optimistic locking.
-	 */
-	@Getter
-	private Long version;
-	@Getter
-	private UUID createdBy;
-	@Getter
-	private LocalDateTime createdDate;
-	
-	private UUID lastModifiedBy;//might be null
-	private LocalDateTime lastModifiedDate;//might be null
-	
-	@Getter
-	private String name;
-	@Getter
-	private String description;
-	
-	private LocalDateTime deprecatedDate;//might be null
-	private LocalDateTime obsoleteDate;//might be null
-	private Location defaultLocation;//might be null
-	
-	@Getter
-	private Integer minimumOrderQuantity;
-	@Getter
-	private Integer maximumOrderQuantity;
-	@Getter
-	private Integer optimumOrderQuantity;
+    private Goods() {// use builder instead
+    }
 
-	private final Set<Tag> tags = new HashSet<>();// getter return a RO collection 
-	
-	public static interface GoodsNameBuilder {
-		GoodsCreatedByBuilder name(@NonNull String name);
-	}
-	public static interface GoodsCreatedByBuilder {
-		GoodsBuilder createdBy(@NonNull UUID createdBy);
-	}
+    /**
+     * Identifier of this piece of goods.
+     */
+    @Getter
+    private UUID id;
+    /**
+     * Version number for optimistic locking.
+     */
+    @Getter
+    private Long version;
 
-	public static interface GoodsBuilder {
-		GoodsBuilder id(@NonNull UUID id);
-		GoodsBuilder version(@NonNull Long version);
-		GoodsBuilder description(@NonNull String description);
-		GoodsBuilder createdDate(@NonNull LocalDateTime createdDate);
-		GoodsBuilder lastModifiedBy(UUID uuid);
-		GoodsBuilder lastModifiedDate(LocalDateTime lastUpdatedDate);
-		GoodsBuilder deprecatedDate(LocalDateTime deprecatedDate);
-		GoodsBuilder obsoleteDate(LocalDateTime obsoleteDate);
-		GoodsBuilder defaultLocation(Location defaultLocation);
-		GoodsBuilder minimumOrderQuantity(@NonNull Integer minimumOrderQuantity);
-		GoodsBuilder maximumOrderQuantity(@NonNull Integer maximumOrderQuantity);
-		GoodsBuilder optimumOrderQuantity(@NonNull Integer optimumOrderQuantity);
-		GoodsBuilder tags();
-		GoodsBuilder tag(@NonNull Tag tag);
-		GoodsBuilder tags(@NonNull Set<Tag> tags);
-		Goods build();
-	}
+    private UUID createdBy;// might be null (before persisted)
+    private OffsetDateTime createdDate;// might be null (before persisted)
+    private UUID lastModifiedBy;// might be null
+    private OffsetDateTime lastModifiedDate;// might be null
 
-	public static class Builder implements GoodsNameBuilder, GoodsCreatedByBuilder, GoodsBuilder {
+    @Getter
+    private String name;
+    @Getter
+    private String description;
 
-		private final List<Consumer<Goods>> operations = new ArrayList<>();
+    private OffsetDateTime deprecatedDate;// might be null
+    private OffsetDateTime obsoleteDate;// might be null
+    private Location defaultLocation;// might be null
 
-		private Builder() {
-		}
-		
-		@Override
-		public Builder id(@NonNull UUID id) {
-			operations.add(g -> g.id = id);
-			return this;
-		}
-		@Override
-		public Builder version(@NonNull Long version) {
-			this.operations.add(o -> o.version = version);
-			return this;
-		}
+    @Getter
+    private Integer minimumOrderQuantity;
+    @Getter
+    private Integer maximumOrderQuantity;
+    @Getter
+    private Integer optimumOrderQuantity;
 
-		@Override
-		public Builder description(@NonNull String description) {
-			operations.add(g -> g.description = description);
-			return this;
-		}
+    private final Set<Tag> tags = new HashSet<>();// getter return a RO collection
 
-		@Override
-		public Builder createdBy(@NonNull UUID createdBy) {
-			operations.add(g -> g.createdBy = createdBy);
-			return this;
-		}
+    public static interface GoodsNameBuilder {
+        GoodsBuilder name(@NonNull String name);
+    }
 
-		@Override
-		public Builder createdDate(@NonNull LocalDateTime createdDate) {
-			operations.add(g -> g.createdDate = createdDate);
-			return this;
-		}
+    public static interface GoodsBuilder {
+        GoodsBuilder id(@NonNull UUID id);
 
-		@Override
-		public Builder lastModifiedBy(UUID lastModifiedBy) {
-			operations.add(g -> g.lastModifiedBy = lastModifiedBy);
-			return this;
-		}
-		@Override
-		public Builder lastModifiedDate(LocalDateTime lastModifiedDate) {
-			operations.add(g -> g.lastModifiedDate = lastModifiedDate);
-			return this;
-		}
+        GoodsBuilder version(@NonNull Long version);
 
-		@Override
-		public Builder deprecatedDate(LocalDateTime deprecatedDate) {
-			operations.add(g -> g.deprecatedDate = deprecatedDate);
-			return this;
-		}
+        GoodsBuilder description(@NonNull String description);
 
-		@Override
-		public Builder obsoleteDate(LocalDateTime obsoleteDate) {
-			operations.add(g -> g.obsoleteDate = obsoleteDate);
-			return this;
-		}
+        GoodsBuilder createdBy(@NonNull UUID createdBy);
 
-		@Override
-		public Builder defaultLocation(Location defaultLocation) {
-			operations.add(g -> g.defaultLocation = defaultLocation);
-			return this;
-		}
+        GoodsBuilder createdDate(@NonNull OffsetDateTime createdDate);
 
-		@Override
-		public Builder minimumOrderQuantity(@NonNull Integer minimumOrderQuantity) {
-			operations.add(g -> g.minimumOrderQuantity = minimumOrderQuantity);
-			return this;
-		}
+        GoodsBuilder lastModifiedBy(UUID uuid);
 
-		@Override
-		public GoodsBuilder maximumOrderQuantity(@NonNull Integer maximumOrderQuantity) {
-			operations.add(g -> g.maximumOrderQuantity = maximumOrderQuantity);
-			return this;
-		}
+        GoodsBuilder lastModifiedDate(OffsetDateTime lastUpdatedDate);
 
-		@Override
-		public Builder optimumOrderQuantity(@NonNull Integer optimumOrderQuantity) {
-			operations.add(g -> g.optimumOrderQuantity = optimumOrderQuantity);
-			return this;
-		}
+        GoodsBuilder deprecatedDate(OffsetDateTime deprecatedDate);
 
-		@Override
-		public Builder tag(@NonNull Tag tag) {
-			operations.add(g -> g.tags.add(tag));
-			return this;
-		}
+        GoodsBuilder obsoleteDate(OffsetDateTime obsoleteDate);
 
-		@Override
-		public Builder tags() {
-			operations.add(g -> g.tags.clear());
-			return this;
-		}
+        GoodsBuilder defaultLocation(Location defaultLocation);
 
-		@Override
-		public Builder tags(@NonNull Set<Tag> tags) {
-			operations.add(g -> g.tags.addAll(tags));
-			return this;
-		}
+        GoodsBuilder minimumOrderQuantity(@NonNull Integer minimumOrderQuantity);
 
-		@Override
-		public Builder name(@NonNull String name) {
-			operations.add(g -> g.name = name);
-			return this;
-		}
+        GoodsBuilder maximumOrderQuantity(@NonNull Integer maximumOrderQuantity);
 
-		/**
-		 * 
-		 * @return new instance of {@link Goods}
-		 */
-		@Override
-		public Goods build() {
-			Goods goods = new Goods();
-			operations.forEach(c -> c.accept(goods));
-			// handling default values
-			goods.id = goods.id == null ? UUID.randomUUID() : goods.id;
-			goods.version = goods.version == null ? 0 : goods.version;
-			goods.description= goods.description == null ? "" : goods.description;
-			goods.createdDate= goods.createdDate == null ? LocalDateTime.now() : goods.createdDate;
-			goods.minimumOrderQuantity= goods.minimumOrderQuantity == null ? 1 : goods.minimumOrderQuantity;
-			goods.maximumOrderQuantity= goods.maximumOrderQuantity == null ? 1 : goods.maximumOrderQuantity;
-			goods.optimumOrderQuantity= goods.optimumOrderQuantity == null ? 1 : goods.optimumOrderQuantity;
-			return goods;
-		}
+        GoodsBuilder optimumOrderQuantity(@NonNull Integer optimumOrderQuantity);
 
-		private Builder clone(Goods goods) {
-			this.id(goods.id);
-			this.version(goods.version);
-			this.name(goods.name);
-			this.description(goods.description);
-			this.createdBy(goods.createdBy);
-			this.createdDate(goods.createdDate);
-			this.lastModifiedBy(goods.lastModifiedBy);
-			this.lastModifiedDate(goods.lastModifiedDate);
-			this.deprecatedDate(goods.deprecatedDate);
-			this.obsoleteDate(goods.obsoleteDate);
-			this.defaultLocation(goods.defaultLocation);
-			this.minimumOrderQuantity(goods.minimumOrderQuantity);
-			this.maximumOrderQuantity(goods.maximumOrderQuantity);
-			this.optimumOrderQuantity(goods.optimumOrderQuantity);
-			this.tags(goods.tags);
-			return this;
-		}
-	}
+        GoodsBuilder tags();
 
-	
-	
-	public Optional<UUID> getLastModifiedBy(){
-		return Optional.ofNullable(this.lastModifiedBy);
-	}
-	public Optional<LocalDateTime> getLastModifiedDate(){
-		return Optional.ofNullable(this.lastModifiedDate);
-	}
-	public Optional<LocalDateTime> getDeprecatedDate(){
-		return Optional.ofNullable(this.deprecatedDate);
-	}
-	public Optional<LocalDateTime> getObsoleteDate(){
-		return Optional.ofNullable(this.obsoleteDate);
-	}
-	public Optional<Location> getDefaultLocation() {
-		return Optional.ofNullable(this.defaultLocation);
-	}
-	public Set<Tag> getTags() {
-		return Collections.unmodifiableSet(this.tags);
-	}
-	
-	public boolean isDeprecated() {
-		return isDeprecatedFrom(LocalDateTime.now());
-	}
-	public boolean isDeprecatedFrom(LocalDateTime referenceDatetime) {
-		return this.getDeprecatedDate().orElse(LocalDateTime.MAX).isBefore(referenceDatetime);
-	}
-	public boolean isObsolete() {
-		return isObsoleteFrom(LocalDateTime.now());
-	}
-	public boolean isObsoleteFrom(LocalDateTime referenceDatetime) {
-		return this.getObsoleteDate().orElse(LocalDateTime.MAX).isBefore(referenceDatetime);
-	}
+        GoodsBuilder tag(@NonNull Tag tag);
 
-	public static GoodsNameBuilder builder() {
-		return new Goods.Builder();
-	}
-	public Builder toBuilder() {
-		return new Goods.Builder().clone(this);
-	}
+        GoodsBuilder tags(@NonNull Set<Tag> tags);
+
+        Goods build();
+    }
+
+    public static class Builder implements GoodsNameBuilder, GoodsBuilder {
+
+        private final List<Consumer<Goods>> operations = new ArrayList<>();
+
+        private Builder() {
+        }
+
+        @Override
+        public Builder id(@NonNull final UUID id) {
+            this.operations.add(g -> g.id = id);
+            return this;
+        }
+
+        @Override
+        public Builder version(@NonNull final Long version) {
+            this.operations.add(o -> o.version = version);
+            return this;
+        }
+
+        @Override
+        public Builder description(@NonNull final String description) {
+            this.operations.add(g -> g.description = description);
+            return this;
+        }
+
+        @Override
+        public Builder createdBy(@NonNull final UUID createdBy) {
+            this.operations.add(g -> g.createdBy = createdBy);
+            return this;
+        }
+
+        @Override
+        public Builder createdDate(@NonNull final OffsetDateTime createdDate) {
+            this.operations.add(g -> g.createdDate = createdDate);
+            return this;
+        }
+
+        @Override
+        public Builder lastModifiedBy(final UUID lastModifiedBy) {
+            this.operations.add(g -> g.lastModifiedBy = lastModifiedBy);
+            return this;
+        }
+
+        @Override
+        public Builder lastModifiedDate(final OffsetDateTime lastModifiedDate) {
+            this.operations.add(g -> g.lastModifiedDate = lastModifiedDate);
+            return this;
+        }
+
+        @Override
+        public Builder deprecatedDate(final OffsetDateTime deprecatedDate) {
+            this.operations.add(g -> g.deprecatedDate = deprecatedDate);
+            return this;
+        }
+
+        @Override
+        public Builder obsoleteDate(final OffsetDateTime obsoleteDate) {
+            this.operations.add(g -> g.obsoleteDate = obsoleteDate);
+            return this;
+        }
+
+        @Override
+        public Builder defaultLocation(final Location defaultLocation) {
+            this.operations.add(g -> g.defaultLocation = defaultLocation);
+            return this;
+        }
+
+        @Override
+        public Builder minimumOrderQuantity(@NonNull final Integer minimumOrderQuantity) {
+            this.operations.add(g -> g.minimumOrderQuantity = minimumOrderQuantity);
+            return this;
+        }
+
+        @Override
+        public GoodsBuilder maximumOrderQuantity(@NonNull final Integer maximumOrderQuantity) {
+            this.operations.add(g -> g.maximumOrderQuantity = maximumOrderQuantity);
+            return this;
+        }
+
+        @Override
+        public Builder optimumOrderQuantity(@NonNull final Integer optimumOrderQuantity) {
+            this.operations.add(g -> g.optimumOrderQuantity = optimumOrderQuantity);
+            return this;
+        }
+
+        @Override
+        public Builder tag(@NonNull final Tag tag) {
+            this.operations.add(g -> g.tags.add(tag));
+            return this;
+        }
+
+        @Override
+        public Builder tags() {
+            this.operations.add(g -> g.tags.clear());
+            return this;
+        }
+
+        @Override
+        public Builder tags(@NonNull final Set<Tag> tags) {
+            this.operations.add(g -> g.tags.addAll(tags));
+            return this;
+        }
+
+        @Override
+        public Builder name(@NonNull final String name) {
+            this.operations.add(g -> g.name = name);
+            return this;
+        }
+
+        /**
+         *
+         * @return new instance of {@link Goods}
+         */
+        @Override
+        public Goods build() {
+            final Goods goods = new Goods();
+            this.operations.forEach(c -> c.accept(goods));
+            // handling default values
+            goods.id = goods.id == null ? UUID.randomUUID() : goods.id;
+            goods.version = goods.version == null ? 0 : goods.version;
+            goods.description = goods.description == null ? "" : goods.description;
+            goods.createdDate = goods.createdDate == null ? OffsetDateTime.now() : goods.createdDate;
+            goods.minimumOrderQuantity = goods.minimumOrderQuantity == null ? 1 : goods.minimumOrderQuantity;
+            goods.maximumOrderQuantity = goods.maximumOrderQuantity == null ? 1 : goods.maximumOrderQuantity;
+            goods.optimumOrderQuantity = goods.optimumOrderQuantity == null ? 1 : goods.optimumOrderQuantity;
+            return goods;
+        }
+
+        private Builder clone(final Goods goods) {
+            this.id(goods.id);
+            this.version(goods.version);
+            this.name(goods.name);
+            this.description(goods.description);
+            this.createdBy(goods.createdBy);
+            this.createdDate(goods.createdDate);
+            this.lastModifiedBy(goods.lastModifiedBy);
+            this.lastModifiedDate(goods.lastModifiedDate);
+            this.deprecatedDate(goods.deprecatedDate);
+            this.obsoleteDate(goods.obsoleteDate);
+            this.defaultLocation(goods.defaultLocation);
+            this.minimumOrderQuantity(goods.minimumOrderQuantity);
+            this.maximumOrderQuantity(goods.maximumOrderQuantity);
+            this.optimumOrderQuantity(goods.optimumOrderQuantity);
+            this.tags(goods.tags);
+            return this;
+        }
+    }
+
+    public Optional<UUID> getCreatedBy() {
+        return Optional.ofNullable(this.createdBy);
+    }
+
+    public Optional<OffsetDateTime> getCreatedDate() {
+        return Optional.ofNullable(this.createdDate);
+    }
+
+    public Optional<UUID> getLastModifiedBy() {
+        return Optional.ofNullable(this.lastModifiedBy);
+    }
+
+    public Optional<OffsetDateTime> getLastModifiedDate() {
+        return Optional.ofNullable(this.lastModifiedDate);
+    }
+
+    public Optional<OffsetDateTime> getDeprecatedDate() {
+        return Optional.ofNullable(this.deprecatedDate);
+    }
+
+    public Optional<OffsetDateTime> getObsoleteDate() {
+        return Optional.ofNullable(this.obsoleteDate);
+    }
+
+    public Optional<Location> getDefaultLocation() {
+        return Optional.ofNullable(this.defaultLocation);
+    }
+
+    public Set<Tag> getTags() {
+        return Collections.unmodifiableSet(this.tags);
+    }
+
+    public boolean isDeprecated() {
+        return this.isDeprecatedFrom(OffsetDateTime.now());
+    }
+
+    public boolean isDeprecatedFrom(final OffsetDateTime referenceDatetime) {
+        return this.getDeprecatedDate().orElse(OffsetDateTime.MAX).isBefore(referenceDatetime);
+    }
+
+    public boolean isObsolete() {
+        return this.isObsoleteFrom(OffsetDateTime.now());
+    }
+
+    public boolean isObsoleteFrom(final OffsetDateTime referenceDatetime) {
+        return this.getObsoleteDate().orElse(OffsetDateTime.MAX).isBefore(referenceDatetime);
+    }
+
+    public static GoodsNameBuilder builder() {
+        return new Goods.Builder();
+    }
+
+    public Builder toBuilder() {
+        return new Goods.Builder().clone(this);
+    }
 
 }
